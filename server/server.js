@@ -26,6 +26,19 @@ app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello World!' });
 });
 
+app.get('/api/inventory', async (req, res, next) => {
+  try {
+    const sql = `
+      select *
+        from "inventory"
+    `;
+    const result = await db.query(sql);
+    res.json(result.rows);
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.use(errorMiddleware);
 
 app.listen(process.env.PORT, () => {
