@@ -1,14 +1,18 @@
 import { Link } from 'react-router-dom';
+import { toDollars } from '../lib';
 
-export default function Card() {
+export default function Card({ card }) {
+  const { name, collectorNumber, setName, setCode, rarity, foil, price, image } = card;
+
   return (
     <div className="card mx-auto max-w-sm max-w-md max-w-lg">
-      <Link to="/"><img src="https://c1.scryfall.com/file/scryfall-cards/large/front/d/3/d32b3637-ffc8-4bda-bfc1-912f5789b5ed.jpg?1675830355" alt="Goblin King (foil) 7th Edition" className="card-img-top mt-3" /></Link>
-      <div className="card-body">
-        <p className="card-title fw-bold">Goblin King (foil)</p>
-        <p className="card-text m-0">Set: 7th Edition</p>
-        <p className="card-text m-0">Rarity: Rare</p>
-        <p className="card-text m-0">Price: $15.99</p>
+      <Link className="d-none d-md-block" to="/"><img src={`https://c1.scryfall.com/file/scryfall-cards/normal${image}`} alt="Goblin King (foil) 7th Edition" className="card-img-top mt-3" /></Link>
+      <Link className="d-block d-md-none" to="/"><img src={`https://c1.scryfall.com/file/scryfall-cards/small${image}`} alt="Goblin King (foil) 7th Edition" className="card-img-top mt-3" /></Link>
+      <div className="card-body px-0">
+        <p className="card-title fw-bold">{name} #{collectorNumber} {foil && "(foil)"}</p>
+        <p className="card-text m-0">Set: {setName} ({setCode.toUpperCase()})</p>
+        <p className="card-text m-0">Rarity: {rarity}</p>
+        <p className="card-text m-0">Price: {toDollars(price)}</p>
       </div>
     </div>
   );
