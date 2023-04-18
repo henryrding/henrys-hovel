@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+// import ClientError from './lib/client-error.js';
 import errorMiddleware from './lib/error-middleware.js';
 import pg from 'pg';
 
@@ -38,6 +39,28 @@ app.get('/api/inventory', async (req, res, next) => {
     next(err);
   }
 });
+
+// app.get('/api/inventory/:inventoryId', async (req, res, next) => {
+//   try {
+//     const inventoryId = Number(req.params.inventoryId);
+//     if (!inventoryId) {
+//       throw new ClientError(400, 'productId must be a positive integer');
+//     }
+//     const sql = `
+//       select *
+//         from "inventory"
+//         where "inventoryId" = $1
+//     `;
+//     const params = [inventoryId];
+//     const result = await db.query(sql, params);
+//     if (!result.rows[0]) {
+//       throw new ClientError(404, `cannot find inventory item with inventoryId ${inventoryId}`);
+//     }
+//     res.json(result.rows[0]);
+//   } catch (err) {
+//     next(err);
+//   }
+// });
 
 app.use(errorMiddleware);
 
