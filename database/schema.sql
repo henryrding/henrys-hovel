@@ -11,6 +11,7 @@ CREATE TABLE "public"."inventory" (
 	"name" TEXT NOT NULL,
   "collectorNumber" TEXT NOT NULL,
 	"setName" TEXT NOT NULL,
+  "setCode" TEXT NOT NULL,
 	"rarity" TEXT NOT NULL,
 	"foil" BOOLEAN NOT NULL,
 	"price" integer NOT NULL,
@@ -71,17 +72,18 @@ CREATE TABLE "public"."orders" (
 
 CREATE TABLE "public"."orderItems" (
 	"orderId" integer NOT NULL,
-	"inventoryId" integer NOT NULL,
-	"cardId" TEXT NOT NULL UNIQUE,
+"inventoryId" serial NOT NULL,
 	"name" TEXT NOT NULL,
   "collectorNumber" TEXT NOT NULL,
-	"image" TEXT NOT NULL,
 	"setName" TEXT NOT NULL,
+  "setCode" TEXT NOT NULL,
 	"rarity" TEXT NOT NULL,
 	"foil" BOOLEAN NOT NULL,
 	"price" integer NOT NULL,
 	"quantity" integer NOT NULL,
-	"visible" BOOLEAN NOT NULL,
+	"cardId" TEXT NOT NULL UNIQUE,
+	"image" TEXT NOT NULL,
+	"visible" BOOLEAN NOT NULL DEFAULT TRUE,
 	"createdAt" timestamptz(6) NOT NULL DEFAULT now()
 ) WITH (
   OIDS=FALSE
