@@ -18,6 +18,13 @@ CREATE TABLE "public"."inventory" (
 	"quantity" integer NOT NULL,
 	"cardId" TEXT NOT NULL UNIQUE,
 	"image" TEXT NOT NULL,
+	"manaCost" TEXT NOT NULL,
+	"typeLine" TEXT NOT NULL,
+	"oracleText" TEXT NOT NULL,
+	"power" TEXT DEFAULT '',
+	"toughness" TEXT DEFAULT '',
+	"flavorText" TEXT NOT NULL,
+	"artist" TEXT NOT NULL,
 	"visible" BOOLEAN NOT NULL DEFAULT TRUE,
 	"createdAt" timestamptz(6) NOT NULL DEFAULT now(),
 	CONSTRAINT "inventory_pk" PRIMARY KEY ("inventoryId")
@@ -83,6 +90,13 @@ CREATE TABLE "public"."orderItems" (
 	"quantity" integer NOT NULL,
 	"cardId" TEXT NOT NULL UNIQUE,
 	"image" TEXT NOT NULL,
+  "manaCost" TEXT NOT NULL,
+	"typeLine" TEXT NOT NULL,
+	"oracleText" TEXT NOT NULL,
+	"power" TEXT DEFAULT '',
+	"toughness" TEXT DEFAULT '',
+	"flavorText" TEXT DEFAULT '',
+	"artist" TEXT NOT NULL,
 	"visible" BOOLEAN NOT NULL DEFAULT TRUE,
 	"createdAt" timestamptz(6) NOT NULL DEFAULT now()
 ) WITH (

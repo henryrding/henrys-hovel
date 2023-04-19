@@ -23,7 +23,13 @@ export default function Catalog() {
     loadCatalog();
   }, []);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return (
+    <div className="d-flex justify-content-center align-items-center vh-100">
+      <div className="spinner-border text-primary" role="status">
+        <span className="sr-only visually-hidden">Loading...</span>
+      </div>
+    </div>
+  );
   if (error) return <div>Error Loading Catalog: {error.message}</div>;
 
   return (
