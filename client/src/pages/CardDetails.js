@@ -1,15 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { ShopContext } from '../components/ShopContext';
 import { fetchCard, toDollars, createLineBreaks } from '../lib';
 import { AiOutlinePlusSquare, AiOutlineMinusSquare } from 'react-icons/ai';
+import { BiErrorCircle } from 'react-icons/bi';
 import './CardDetails.css';
+import { Toast } from 'bootstrap';
 
 export default function CardDetails() {
   const { cardId } = useParams();
   const [card, setCard] = useState();
+  const [quantityToAdd, setQuantityToAdd] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState();
+  const { addToCart, cartInventory } = useContext(ShopContext);
 
   useEffect(() => {
     async function loadProduct(cardId) {
@@ -25,6 +30,32 @@ export default function CardDetails() {
     setIsLoading(true);
     loadProduct(cardId);
   }, [cardId]);
+
+  function handleQuantityChange(event) {
+    const inputQuantity = parseInt(event.target.value);
+    if (!isNaN(inputQuantity)) {
+      setQuantityToAdd(inputQuantity);
+    }
+  }
+
+  function findCartCard(cartItems, item) {
+    return cartItems.find(cartItem => cartItem.inventoryId === item.inventoryId)
+  };
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    const cardInCart = findCartCard(cartInventory, card);
+    if (cardInCart === undefined || !(cardInCart.quantity + quantityToAdd > card.quantity)) {
+      addToCart(card.inventoryId, quantityToAdd)
+    } else {
+      const toastTrigger = document.getElementById('liveToastBtn')
+      const toastLiveExample = document.getElementById('liveToast')
+      if (toastTrigger) {
+          const toast = new Toast(toastLiveExample);
+          toast.show();
+      }
+    }
+  }
 
   if (isLoading) return (
     <div className="d-flex justify-content-center align-items-center vh-100">
@@ -43,6 +74,9 @@ export default function CardDetails() {
   if (!card) return null;
   const { name, collectorNumber, setName, setCode, rarity, foil, price, quantity, image, manaCost, typeLine, power, toughness, flavorText, artist } = card;
   let { oracleText } = card;
+
+  const cardInCart = findCartCard(cartInventory, card);
+  const cartItemAmount = cardInCart !== undefined && cardInCart.quantity;
 
   return (
     <div className="container">
@@ -70,7 +104,7 @@ export default function CardDetails() {
               <p className="card-text"><strong>Price:</strong> {toDollars(price)}</p>
               <p className="card-text"><strong>Quantity Available:</strong> {quantity}</p>
             </div>
-            <form className="form-inline mb-3 px-3">
+            <form onSubmit={handleSubmit} className="form-inline mb-3 px-3">
               <label htmlFor="quantity" className="mr-3">
                 Quantity:
               </label>
@@ -83,8 +117,9 @@ export default function CardDetails() {
                     onClick={() => {
                       const inputEl = document.getElementById('quantity');
                       const currentVal = parseInt(inputEl.value);
-                      if (!isNaN(currentVal) && currentVal - 1 !== 0) {
+                      if (currentVal - 1 !== 0) {
                         inputEl.value = currentVal - 1;
+                        setQuantityToAdd(inputEl.valueAsNumber);
                       }
                     }}
                   >
@@ -95,7 +130,12 @@ export default function CardDetails() {
                   type="number"
                   id="quantity"
                   name="quantity"
-                  defaultValue={1}
+                  value={quantityToAdd}
+                  required
+                  min={1}
+                  max={quantity}
+                  onChange={handleQuantityChange}
+                  onFocus={event => event.target.select()}
                   className="form-control text-center"
                 />
                 <div className="input-group-append">
@@ -106,8 +146,9 @@ export default function CardDetails() {
                     onClick={() => {
                       const inputEl = document.getElementById('quantity');
                       const currentVal = parseInt(inputEl.value);
-                      if (!isNaN(currentVal) && currentVal < quantity) {
+                      if (currentVal < quantity) {
                         inputEl.value = currentVal + 1;
+                        setQuantityToAdd(inputEl.valueAsNumber);
                       }
                     }}
                   >
@@ -116,13 +157,28 @@ export default function CardDetails() {
                 </div>
               </div>
               <div className="d-flex justify-content-between align-items-center">
-                <button className="btn btn-primary">Add to Cart</button>
+                <button type="submit" className="btn btn-primary" id="liveToastBtn">
+                  Add to Cart {cartItemAmount > 0 && <>({cartItemAmount})</>}
+                </button>
                 <Link to="/"><button className="btn btn-link">Back to Catalog</button></Link>
               </div>
             </form>
           </div>
         </div>
       </div>
+      <div className="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
+          <div className="toast-header">
+            <BiErrorCircle color='red' className="rounded me-2" />
+              <strong className="me-auto">Henry's Hovel</strong>
+              <small>Just now</small>
+              <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div className="toast-body">
+            Not enough in stock!
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+};

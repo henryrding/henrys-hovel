@@ -2,6 +2,7 @@
 import {Route, Routes} from 'react-router-dom';
 import './App.css';
 import NavBar from './components/NavBar';
+import { ShopContextProvider } from './components/ShopContext';
 import Catalog from './pages/Catalog';
 import CardDetails from './pages/CardDetails';
 // import Cart from './pages/Cart';
@@ -29,6 +30,7 @@ function App() {
 
 
   return(
+    <ShopContextProvider>
       <Routes>
         <Route path="/" element={<NavBar />}>
           <Route index element={<Catalog />} />
@@ -42,6 +44,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+    </ShopContextProvider>
   );
 }
 
