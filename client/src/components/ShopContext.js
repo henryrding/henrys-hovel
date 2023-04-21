@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState, useCallback, useMemo } from 'react';
 
 export const ShopContext = createContext();
 
@@ -20,7 +20,7 @@ export const ShopContextProvider = (props) => {
     localStorage.setItem('cart', JSON.stringify(cartInventory));
   }, [cartInventory]);
 
-  const addToCart = (inventoryId, quantity) => {
+  const addToCart = useCallback((inventoryId, quantity) => {
     const cartCard = {inventoryId: inventoryId, quantity:quantity};
     const updatedCartInventory = cartInventory.map(card => {
       if (card.inventoryId === inventoryId) {
@@ -34,14 +34,14 @@ export const ShopContextProvider = (props) => {
       updatedCartInventory.push(cartCard);
     }
     setCartInventory(updatedCartInventory);
-  }
+  }, [cartInventory]);
 
-  const removeFromCart = (inventoryId) => {
+  const removeFromCart = useCallback((inventoryId) => {
     const updatedCartInventory = cartInventory.filter(card => card.inventoryId !== inventoryId);
     setCartInventory(updatedCartInventory);
-  }
+  }, [cartInventory]);
 
-  const updadeCartItemQuantity = (inventoryId, newQuantity) => {
+  const updateCartItemQuantity = useCallback((inventoryId, newQuantity) => {
     const updatedCartInventory = cartInventory.map(card => {
       if (card.inventoryId === inventoryId) {
         return { ...card, quantity: newQuantity }
@@ -49,20 +49,21 @@ export const ShopContextProvider = (props) => {
         return card;
       }
     });
+    console.log(updatedCartInventory);
     setCartInventory(updatedCartInventory);
-  };
+  },[cartInventory]);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCartInventory([]);
-  }
+  }, []);
 
-  const contextValue = {
+  const contextValue = useMemo(() => ({
     cartInventory,
     addToCart,
     removeFromCart,
-    updadeCartItemQuantity,
+    updateCartItemQuantity,
     clearCart
-  };
+  }), [cartInventory, addToCart, removeFromCart, updateCartItemQuantity, clearCart]);
 
   return (
     <ShopContext.Provider value={contextValue}>
