@@ -1,5 +1,6 @@
 import { useContext, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { fetchCatalog } from '../lib';
 import CartItem from "../components/CartItem.js";
 import { ShopContext } from "../components/ShopContext";
@@ -11,7 +12,8 @@ export default function Cart() {
   const [subtotal, setSubtotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState();
-  const { cartInventory } = useContext(ShopContext);
+  const { cartInventory, clearCart } = useContext(ShopContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function loadCatalog() {
@@ -105,7 +107,8 @@ export default function Cart() {
                 </div>
                 <div className="d-grid gap-2">
                   <button type="button" className="btn btn-primary" onClick={handleCheckout}>Checkout</button>
-                  <Link to="/"><button type="button" className="btn btn-secondary">Continue Shopping</button></Link>
+                  <button type="button" className="btn btn-danger" onClick={clearCart}>Clear cart</button>
+                  <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>Continue Shopping</button>
                 </div>
               </div>
             </div>

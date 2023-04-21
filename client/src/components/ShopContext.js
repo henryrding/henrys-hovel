@@ -49,7 +49,6 @@ export const ShopContextProvider = (props) => {
         return card;
       }
     });
-    console.log(updatedCartInventory);
     setCartInventory(updatedCartInventory);
   },[cartInventory]);
 
