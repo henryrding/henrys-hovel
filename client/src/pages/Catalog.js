@@ -2,6 +2,7 @@ import { useEffect, useState, Fragment } from 'react';
 import { fetchCatalog } from '../lib';
 import Card from "../components/Card";
 import Search from "../components/Search";
+import ToggleLamberto from '../components/ToggleLamberto';
 
 export default function Catalog() {
   const [inventory, setInventory] = useState();
@@ -30,7 +31,16 @@ export default function Catalog() {
       </div>
     </div>
   );
-  if (error) return <div>Error Loading Catalog: {error.message}</div>;
+  if (error) return (
+        <>
+        <div className="alert alert-info text-center mt-4" role="alert">
+          Error Loading Catalog: {error.message}
+        </div>
+        <div className="d-flex justify-content-center">
+          <ToggleLamberto />
+        </div>
+      </>
+  );
 
   return (
     <div className="container">

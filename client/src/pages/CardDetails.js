@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { ShopContext } from '../components/ShopContext';
+import ToggleLamberto from '../components/ToggleLamberto';
 import { fetchCard, toDollars, createLineBreaks } from '../lib';
 import { AiOutlinePlusSquare, AiOutlineMinusSquare } from 'react-icons/ai';
 import { BiErrorCircle } from 'react-icons/bi';
@@ -66,9 +67,14 @@ export default function CardDetails() {
   );
   if (error) {
     return (
-      <div>
+      <>
+      <div className="alert alert-info text-center mt-4" role="alert">
         Error Loading Product {cardId}: {error.message}
       </div>
+      <div className="d-flex justify-content-center">
+        <ToggleLamberto />
+      </div>
+    </>
     );
   }
   if (!card) return null;
