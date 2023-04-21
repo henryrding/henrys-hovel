@@ -68,13 +68,13 @@ export default function CardDetails() {
   if (error) {
     return (
       <>
-      <div className="alert alert-info text-center mt-4" role="alert">
-        Error Loading Product {cardId}: {error.message}
-      </div>
-      <div className="d-flex justify-content-center">
-        <ToggleLamberto />
-      </div>
-    </>
+        <div className="alert alert-info text-center mt-4" role="alert">
+          Error Loading Product {cardId}: {error.message}
+        </div>
+        <div className="d-flex justify-content-center">
+          <ToggleLamberto />
+        </div>
+      </>
     );
   }
   if (!card) return null;
