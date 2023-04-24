@@ -38,7 +38,7 @@ CREATE TABLE "public"."users" (
 	"hashedPassword" TEXT NOT NULL,
 	"firstName" TEXT NOT NULL,
 	"lastName" TEXT NOT NULL,
-	"email" TEXT NOT NULL,
+	"email" TEXT NOT NULL UNIQUE,
 	"isAdmin" BOOLEAN NOT NULL,
 	"createdAt" timestamptz(6) NOT NULL DEFAULT now(),
 	CONSTRAINT "users_pk" PRIMARY KEY ("userId")
@@ -56,9 +56,12 @@ CREATE TABLE "public"."carts" (
 );
 
 CREATE TABLE "public"."cartInventory" (
+  "cartInventoryId" serial NOT NULL,
 	"inventoryId" integer NOT NULL,
 	"cartId" integer NOT NULL,
-  "quantity" integer NOT NULL
+  "quantity" integer NOT NULL,
+  "createdAt" timestamptz(6) NOT NULL DEFAULT now(),
+	CONSTRAINT "cartInventory_pk" PRIMARY KEY ("cartInventoryId")
 ) WITH (
   OIDS=FALSE
 );
@@ -79,7 +82,7 @@ CREATE TABLE "public"."orders" (
 
 CREATE TABLE "public"."orderItems" (
 	"orderId" integer NOT NULL,
-"inventoryId" serial NOT NULL,
+  "inventoryId" serial NOT NULL,
 	"name" TEXT NOT NULL,
   "collectorNumber" TEXT NOT NULL,
 	"setName" TEXT NOT NULL,
@@ -98,7 +101,8 @@ CREATE TABLE "public"."orderItems" (
 	"flavorText" TEXT DEFAULT '',
 	"artist" TEXT NOT NULL,
 	"visible" BOOLEAN NOT NULL DEFAULT TRUE,
-	"createdAt" timestamptz(6) NOT NULL DEFAULT now()
+	"createdAt" timestamptz(6) NOT NULL DEFAULT now(),
+	CONSTRAINT "orderItems_pk" PRIMARY KEY ("orderId", "inventoryId")
 ) WITH (
   OIDS=FALSE
 );

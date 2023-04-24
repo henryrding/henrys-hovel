@@ -28,7 +28,7 @@ insert into "inventory"
 insert into "users"
   ("username", "hashedPassword", "firstName", "lastName", "email", "isAdmin")
   values
-    ('customer', 'password123', 'John', 'Smith', 'email@example.com', false);
+    ('johnsmith', '$argon2id$v=19$m=4096,t=3,p=1$hc/LDCApdy3ReDg8ZAdjeg$55ZlZH7oZL4aoqeLoqc0axVlwB04j9gpVr+vOSEYhGM', 'John', 'Smith', 'johnsmith@example.com', false);
 
 insert into "carts"
   ("userId")
