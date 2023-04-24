@@ -128,6 +128,31 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
 
 app.use(authorizationMiddleware);
 
+app.get('/api/cartInventory', async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const sql = `
+      select "cartId"
+        from "carts"
+        where "userId" = $1
+    `;
+    const params = [userId];
+    const result = await db.query(sql, params);
+    const [cart] = result.rows;
+    const sql2 = `
+      select *
+        from "cartInventory"
+        where "cartId" = $1
+    `;
+    const params2 = [cart.cartId];
+    const result2 = await db.query(sql2, params2);
+    const cartInventory = result2.rows;
+    res.json(cartInventory);
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.post('/api/cartInventory', async (req, res, next) => {
   try {
     const { userId } = req.user;
