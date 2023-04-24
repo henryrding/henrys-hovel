@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
+import argon2 from 'argon2';
+import jwt from 'jsonwebtoken';
 import ClientError from './lib/client-error.js';
 import errorMiddleware from './lib/error-middleware.js';
 import pg from 'pg';
@@ -22,10 +24,6 @@ app.use(express.static(reactStaticDir));
 // Static directory for file uploads server/public/
 app.use(express.static(uploadsStaticDir));
 app.use(express.json());
-
-app.get('/api/hello', (req, res) => {
-  res.json({ message: 'Hello World!' });
-});
 
 app.get('/api/inventory', async (req, res, next) => {
   try {
@@ -58,6 +56,62 @@ app.get('/api/inventory/:cardId', async (req, res, next) => {
       throw new ClientError(404, `cannot find inventory item with cardId ${cardId}`);
     }
     res.json(result.rows[0]);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.post('/api/auth/sign-up', async (req, res, next) => {
+  try {
+    const { username, password, firstName, lastName, email, isAdmin = false } = req.body;
+    if (!username || !password || !firstName || !lastName || !email) {
+      throw new ClientError(400, 'username, password, firstName, lastName, and email are required fields');
+    }
+    const hashedPassword = await argon2.hash(password);
+    const sql = `
+      insert into "users" ("username", "hashedPassword", "firstName", "lastName", "email", "isAdmin")
+        values ($1, $2, $3, $4, $5, $6)
+        returning "userId", "username", "firstName", "lastName", "email", "createdAt"
+    `;
+    const params = [username, hashedPassword, firstName, lastName, email, isAdmin];
+    const result = await db.query(sql, params);
+    const [user] = result.rows;
+    res.status(201).json(user);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.post('/api/auth/sign-in', async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      throw new ClientError(401, 'username and password are required fields');
+    }
+    const sql = `
+      select "userId",
+            "hashedPassword",
+            "firstName",
+            "lastName",
+            "email",
+            "isAdmin"
+        from "users"
+        where "username" = $1
+    `;
+    const params = [username];
+    const result = await db.query(sql, params);
+    const [user] = result.rows;
+    if (!user) {
+      throw new ClientError(401, 'invalid login');
+    }
+    const { userId, hashedPassword, firstName, lastName, email, isAdmin } = user;
+    const isMatching = await argon2.verify(hashedPassword, password);
+    if (!isMatching) {
+      throw new ClientError(401, 'invalid login');
+    }
+    const payload = { userId, username, firstName, lastName, email, isAdmin };
+    const token = jwt.sign(payload, process.env.TOKEN_SECRET);
+    res.json({ token, user: payload });
   } catch (err) {
     next(err);
   }
