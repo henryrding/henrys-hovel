@@ -78,8 +78,7 @@ export default function CardDetails() {
     );
   }
   if (!card) return null;
-  const { name, collectorNumber, setName, setCode, rarity, foil, price, quantity, image, manaCost, typeLine, power, toughness, flavorText, artist } = card;
-  let { oracleText } = card;
+  const { name, collectorNumber, setName, setCode, rarity, foil, price, quantity, image, manaCost, typeLine, power, toughness, flavorText, artist, oracleText } = card;
 
   const cardInCart = findCartCard(cartInventory, card);
   const cartItemAmount = cardInCart !== undefined && cardInCart.quantity;
