@@ -4,6 +4,7 @@ import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import ClientError from './lib/client-error.js';
 import errorMiddleware from './lib/error-middleware.js';
+import authorizationMiddleware from './lib/authorization-middleware.js';
 import pg from 'pg';
 
 // eslint-disable-next-line no-unused-vars -- Remove when used
@@ -76,7 +77,15 @@ app.post('/api/auth/sign-up', async (req, res, next) => {
     const params = [username, hashedPassword, firstName, lastName, email, isAdmin];
     const result = await db.query(sql, params);
     const [user] = result.rows;
-    res.status(201).json(user);
+    const sql2 = `
+      insert into "carts" ("userId")
+        values ($1)
+        returning *
+    `;
+    const params2 = [user.userId];
+    const result2 = await db.query(sql2, params2);
+    const [cart] = result2.rows;
+    res.status(201).json({ user, cart });
   } catch (err) {
     next(err);
   }
@@ -112,6 +121,38 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
     const payload = { userId, username, firstName, lastName, email, isAdmin };
     const token = jwt.sign(payload, process.env.TOKEN_SECRET);
     res.json({ token, user: payload });
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.use(authorizationMiddleware);
+
+app.post('/api/cartInventory', async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const { inventoryId, quantity } = req.body;
+    if (!inventoryId || !quantity) {
+      throw new ClientError(400, 'inventoryId and quantity are required fields');
+    }
+    const sql = `
+      select "cartId"
+        from "carts"
+        where "userId" = $1
+    `;
+    const params = [userId];
+    const result = await db.query(sql, params);
+    const [cart] = result.rows;
+    console.log(req.user);
+    const sql2 = `
+      insert into "cartInventory" ("inventoryId", "cartId", "quantity")
+        values ($1, $2, $3)
+        returning *
+    `;
+    const params2 = [inventoryId, cart.cartId, quantity];
+    const result2 = await db.query(sql2, params2);
+    const [addedToCart] = result2.rows;
+    res.status(201).json(addedToCart);
   } catch (err) {
     next(err);
   }
