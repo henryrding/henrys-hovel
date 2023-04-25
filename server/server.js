@@ -211,9 +211,70 @@ app.patch('/api/cartInventory/:inventoryId', async (req, res, next) => {
     const result2 = await db.query(sql2, params2);
     const [updatedCartInventory] = result2.rows;
     if (!updatedCartInventory) {
-      throw new ClientError(404, `cannot find card with inventoryIf ${inventoryId} in cart`);
+      throw new ClientError(404, `cannot find card with inventoryId ${inventoryId} in cart`);
     }
     res.json(updatedCartInventory);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.delete('/api/cartInventory/:inventoryId', async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const { inventoryId } = req.params;
+
+    const sql = `
+      select "cartId"
+        from "carts"
+        where "userId" = $1
+    `;
+    const params = [userId];
+    const result = await db.query(sql, params);
+    const [cart] = result.rows;
+
+    const sql2 = `
+      delete from "cartInventory"
+      where "cartId" = $1 and "inventoryId" = $2
+      returning *
+    `;
+    const params2 = [cart.cartId, inventoryId];
+    const result2 = await db.query(sql2, params2);
+    const [deletedItem] = result2.rows;
+
+    if (!deletedItem) {
+      throw new ClientError(404, `Item with inventoryId ${inventoryId} not found in user's cart`);
+    }
+
+    res.json(deletedItem);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.delete('/api/cartInventory', async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+
+    const sql = `
+      select "cartId"
+        from "carts"
+        where "userId" = $1
+    `;
+    const params = [userId];
+    const result = await db.query(sql, params);
+    const [cart] = result.rows;
+
+    const sql2 = `
+      delete from "cartInventory"
+      where "cartId" = $1
+      returning *
+    `;
+    const params2 = [cart.cartId];
+    const result2 = await db.query(sql2, params2);
+    const deletedItems = result2.rows;
+
+    res.json(deletedItems);
   } catch (err) {
     next(err);
   }
