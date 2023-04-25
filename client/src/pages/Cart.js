@@ -105,7 +105,7 @@ export default function Cart() {
                   <span>Total:</span>
                   <span>{toDollars(subtotal + (subtotal * 0.0775))}</span>
                 </div>
-                <div className="d-grid gap-2">
+                <div className="d-grid gap-2 pb-4">
                   <button type="button" className="btn btn-primary" onClick={handleCheckout}>Checkout</button>
                   <button type="button" className="btn btn-danger" onClick={clearCart}>Clear cart</button>
                   <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>Continue Shopping</button>

@@ -4,6 +4,7 @@ import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import ClientError from './lib/client-error.js';
 import errorMiddleware from './lib/error-middleware.js';
+import authorizationMiddleware from './lib/authorization-middleware.js';
 import pg from 'pg';
 
 // eslint-disable-next-line no-unused-vars -- Remove when used
@@ -76,7 +77,15 @@ app.post('/api/auth/sign-up', async (req, res, next) => {
     const params = [username, hashedPassword, firstName, lastName, email, isAdmin];
     const result = await db.query(sql, params);
     const [user] = result.rows;
-    res.status(201).json(user);
+    const sql2 = `
+      insert into "carts" ("userId")
+        values ($1)
+        returning *
+    `;
+    const params2 = [user.userId];
+    const result2 = await db.query(sql2, params2);
+    const [cart] = result2.rows;
+    res.status(201).json({ user, cart });
   } catch (err) {
     next(err);
   }
@@ -112,6 +121,160 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
     const payload = { userId, username, firstName, lastName, email, isAdmin };
     const token = jwt.sign(payload, process.env.TOKEN_SECRET);
     res.json({ token, user: payload });
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.use(authorizationMiddleware);
+
+app.get('/api/cartInventory', async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const sql = `
+      select "cartId"
+        from "carts"
+        where "userId" = $1
+    `;
+    const params = [userId];
+    const result = await db.query(sql, params);
+    const [cart] = result.rows;
+    const sql2 = `
+      select *
+        from "cartInventory"
+        where "cartId" = $1
+    `;
+    const params2 = [cart.cartId];
+    const result2 = await db.query(sql2, params2);
+    const cartInventory = result2.rows;
+    res.json(cartInventory);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.post('/api/cartInventory', async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const { inventoryId, quantity } = req.body;
+    if (!inventoryId || !quantity) {
+      throw new ClientError(400, 'inventoryId and quantity are required fields');
+    }
+    const sql = `
+      select "cartId"
+        from "carts"
+        where "userId" = $1
+    `;
+    const params = [userId];
+    const result = await db.query(sql, params);
+    const [cart] = result.rows;
+    const sql2 = `
+      insert into "cartInventory" ("inventoryId", "cartId", "quantity")
+        values ($1, $2, $3)
+        returning *
+    `;
+    const params2 = [inventoryId, cart.cartId, quantity];
+    const result2 = await db.query(sql2, params2);
+    const [addedToCart] = result2.rows;
+    res.status(201).json(addedToCart);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.patch('/api/cartInventory/:inventoryId', async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const inventoryId = Number(req.params.inventoryId);
+    if (!Number.isInteger(inventoryId) || inventoryId < 1) {
+      throw new ClientError(400, 'inventoryId must be a positive integer');
+    }
+    const { quantity } = req.body;
+    if (typeof quantity !== 'number') {
+      throw new ClientError(400, 'quantity (number) is required');
+    }
+    const sql = `
+      select "cartId"
+        from "carts"
+        where "userId" = $1
+    `;
+    const params = [userId];
+    const result = await db.query(sql, params);
+    const [cart] = result.rows;
+    const sql2 = `
+      update "cartInventory"
+        set "quantity" = $1
+        where "inventoryId" = $2 and "cartId" = $3
+        returning *
+    `;
+    const params2 = [quantity, inventoryId, cart.cartId];
+    const result2 = await db.query(sql2, params2);
+    const [updatedCartInventory] = result2.rows;
+    if (!updatedCartInventory) {
+      throw new ClientError(404, `cannot find card with inventoryId ${inventoryId} in cart`);
+    }
+    res.json(updatedCartInventory);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.delete('/api/cartInventory/:inventoryId', async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const { inventoryId } = req.params;
+
+    const sql = `
+      select "cartId"
+        from "carts"
+        where "userId" = $1
+    `;
+    const params = [userId];
+    const result = await db.query(sql, params);
+    const [cart] = result.rows;
+
+    const sql2 = `
+      delete from "cartInventory"
+      where "cartId" = $1 and "inventoryId" = $2
+      returning *
+    `;
+    const params2 = [cart.cartId, inventoryId];
+    const result2 = await db.query(sql2, params2);
+    const [deletedItem] = result2.rows;
+
+    if (!deletedItem) {
+      throw new ClientError(404, `Item with inventoryId ${inventoryId} not found in user's cart`);
+    }
+
+    res.json(deletedItem);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.delete('/api/cartInventory', async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+
+    const sql = `
+      select "cartId"
+        from "carts"
+        where "userId" = $1
+    `;
+    const params = [userId];
+    const result = await db.query(sql, params);
+    const [cart] = result.rows;
+
+    const sql2 = `
+      delete from "cartInventory"
+      where "cartId" = $1
+      returning *
+    `;
+    const params2 = [cart.cartId];
+    const result2 = await db.query(sql2, params2);
+    const deletedItems = result2.rows;
+
+    res.json(deletedItems);
   } catch (err) {
     next(err);
   }
