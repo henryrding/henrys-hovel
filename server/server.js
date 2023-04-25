@@ -168,7 +168,6 @@ app.post('/api/cartInventory', async (req, res, next) => {
     const params = [userId];
     const result = await db.query(sql, params);
     const [cart] = result.rows;
-    console.log(req.user);
     const sql2 = `
       insert into "cartInventory" ("inventoryId", "cartId", "quantity")
         values ($1, $2, $3)
@@ -178,6 +177,43 @@ app.post('/api/cartInventory', async (req, res, next) => {
     const result2 = await db.query(sql2, params2);
     const [addedToCart] = result2.rows;
     res.status(201).json(addedToCart);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.patch('/api/cartInventory/:inventoryId', async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const inventoryId = Number(req.params.inventoryId);
+    if (!Number.isInteger(inventoryId) || inventoryId < 1) {
+      throw new ClientError(400, 'inventoryId must be a positive integer');
+    }
+    const { quantity } = req.body;
+    if (typeof quantity !== 'number') {
+      throw new ClientError(400, 'quantity (number) is required');
+    }
+    const sql = `
+      select "cartId"
+        from "carts"
+        where "userId" = $1
+    `;
+    const params = [userId];
+    const result = await db.query(sql, params);
+    const [cart] = result.rows;
+    const sql2 = `
+      update "cartInventory"
+        set "quantity" = $1
+        where "inventoryId" = $2 and "cartId" = $3
+        returning *
+    `;
+    const params2 = [quantity, inventoryId, cart.cartId];
+    const result2 = await db.query(sql2, params2);
+    const [updatedCartInventory] = result2.rows;
+    if (!updatedCartInventory) {
+      throw new ClientError(404, `cannot find card with inventoryIf ${inventoryId} in cart`);
+    }
+    res.json(updatedCartInventory);
   } catch (err) {
     next(err);
   }
