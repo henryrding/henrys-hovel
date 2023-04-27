@@ -1,10 +1,11 @@
 import { useContext, useState, useEffect } from "react";
 // import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { fetchCatalog } from '../lib';
+import { Toast } from 'bootstrap';
+import { BiErrorCircle } from 'react-icons/bi';
+import { fetchCatalog, toDollars } from '../lib';
 import CartItem from "../components/CartItem.js";
 import { ShopContext } from "../components/ShopContext";
-import { toDollars } from "../lib";
 import ToggleLamberto from "../components/ToggleLamberto"
 
 export default function Cart() {
@@ -12,7 +13,7 @@ export default function Cart() {
   const [subtotal, setSubtotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState();
-  const { cartInventory, clearCart } = useContext(ShopContext);
+  const { cartInventory, clearCart, user } = useContext(ShopContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,8 +50,14 @@ export default function Cart() {
     return quantity;
   }
 
-  function handleCheckout() {
-    console.log('I\'m checking out!');
+  function handleClick(event) {
+    event.preventDefault();
+    const toastTrigger = document.getElementById('liveToastBtn')
+    const toastLiveExample = document.getElementById('liveToast')
+    if (toastTrigger) {
+      const toast = new Toast(toastLiveExample);
+      toast.show();
+    }
   }
 
   if (isLoading) return (
@@ -106,9 +113,26 @@ export default function Cart() {
                   <span>{toDollars(subtotal + (subtotal * 0.0775))}</span>
                 </div>
                 <div className="d-grid gap-2 pb-4">
-                  <button type="button" className="btn btn-primary" onClick={handleCheckout}>Checkout</button>
+                  {user && subtotal >= 50 && <form action={`/create-checkout-session/${user.userId}`} method="POST">
+                    <button type="submit" className="btn btn-primary w-100">Checkout</button>
+                  </form>}
+                  {!user && <button type="button" className="btn btn-primary" onClick={() => navigate('/sign-in')}>Sign in to checkout!</button>}
+                  {user && subtotal < 50 && <button type="button" className="btn btn-primary" id="liveToastBtn" onClick={handleClick}>Checkout</button>}
                   <button type="button" className="btn btn-danger" onClick={clearCart}>Clear cart</button>
                   <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>Continue Shopping</button>
+                </div>
+              </div>
+            </div>
+            <div className="toast-container position-fixed bottom-0 end-0 p-3">
+              <div id="liveToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div className="toast-header">
+                  <BiErrorCircle color='red' className="rounded me-2" />
+                  <strong className="me-auto">Henry's Hovel</strong>
+                  <small>Just now</small>
+                  <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div className="toast-body">
+                  Subtotal must be $0.50 or more!
                 </div>
               </div>
             </div>
