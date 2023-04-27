@@ -78,7 +78,7 @@ export default function CardDetails() {
     );
   }
   if (!card) return null;
-  const { name, collectorNumber, setName, setCode, rarity, foil, price, quantity, image, manaCost, typeLine, power, toughness, flavorText, artist, oracleText } = card;
+  const { name, collectorNumber, setName, setCode, rarity, foil, price, quantity, image, manaCost, typeLine, power, toughness, flavorText, artist, oracleText, visible } = card;
 
   const cardInCart = findCartCard(cartInventory, card);
   const cartItemAmount = cardInCart !== undefined && cardInCart.quantity;
@@ -86,8 +86,11 @@ export default function CardDetails() {
   return (
     <div className="container">
       <div className="row">
-        <div className="col-md-6 p-4">
+        <div className="col-md-6 p-4 position-relative">
           <img src={`https://c1.scryfall.com/file/scryfall-cards/normal${image}`} alt="Card Name" className="img-fluid max-wd-lg-40" />
+          {!visible && <div className="card-img-overlay d-flex justify-content-center align-items-center m-4" style={{backgroundColor: 'gray', opacity: 0.5}}>
+            <h1 className="card-title">OUT OF STOCK</h1>
+          </div>}
         </div>
         <div className="col-md-6 p-4">
           <div className="card">
@@ -107,7 +110,7 @@ export default function CardDetails() {
               <p className="card-text"><strong>Collector Number:</strong> {collectorNumber}</p>
               <p className="card-text"><strong>Finish:</strong> {foil ? 'foil' : 'nonfoil'}</p>
               <p className="card-text"><strong>Price:</strong> {toDollars(price)}</p>
-              <p className="card-text"><strong>Quantity Available:</strong> {quantity}</p>
+              <p className="card-text"><strong>Quantity Available:</strong> {visible ? quantity : 'OUT OF STOCK'}</p>
             </div>
             <form onSubmit={handleSubmit} className="form-inline mb-3 px-3">
               <label htmlFor="quantity" className="mr-3">
