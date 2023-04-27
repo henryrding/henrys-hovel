@@ -1,9 +1,7 @@
 import { useContext, useState, useEffect } from "react";
-// import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { Toast } from 'bootstrap';
 import { BiErrorCircle } from 'react-icons/bi';
-import { fetchCatalog, toDollars } from '../lib';
+import { fetchCatalog, toDollars, handleToast } from '../lib';
 import CartItem from "../components/CartItem.js";
 import { ShopContext } from "../components/ShopContext";
 import ToggleLamberto from "../components/ToggleLamberto"
@@ -25,7 +23,6 @@ export default function Cart() {
         setError(err);
       } finally {
         setIsLoading(false);
-
       }
     }
     setIsLoading(true);
@@ -52,12 +49,7 @@ export default function Cart() {
 
   function handleClick(event) {
     event.preventDefault();
-    const toastTrigger = document.getElementById('liveToastBtn')
-    const toastLiveExample = document.getElementById('liveToast')
-    if (toastTrigger) {
-      const toast = new Toast(toastLiveExample);
-      toast.show();
-    }
+    handleToast();
   }
 
   if (isLoading) return (
@@ -137,7 +129,8 @@ export default function Cart() {
               </div>
             </div>
           </>
-      )}
+        )
+      }
     </div>
   );
 }
