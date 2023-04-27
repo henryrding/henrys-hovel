@@ -3,11 +3,10 @@ import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { ShopContext } from '../components/ShopContext';
 import ToggleLamberto from '../components/ToggleLamberto';
-import { fetchCard, toDollars, createLineBreaks } from '../lib';
+import { fetchCard, toDollars, createLineBreaks, handleToast } from '../lib';
 import { AiOutlinePlusSquare, AiOutlineMinusSquare } from 'react-icons/ai';
 import { BiErrorCircle } from 'react-icons/bi';
 import './CardDetails.css';
-import { Toast } from 'bootstrap';
 
 export default function CardDetails() {
   const { cardId } = useParams();
@@ -49,12 +48,7 @@ export default function CardDetails() {
     if (cardInCart === undefined || !(cardInCart.quantity + quantityToAdd > card.quantity)) {
       addToCart(card.inventoryId, quantityToAdd)
     } else {
-      const toastTrigger = document.getElementById('liveToastBtn')
-      const toastLiveExample = document.getElementById('liveToast')
-      if (toastTrigger) {
-          const toast = new Toast(toastLiveExample);
-          toast.show();
-      }
+      handleToast();
     }
   }
 
@@ -86,11 +80,13 @@ export default function CardDetails() {
   return (
     <div className="container">
       <div className="row">
-        <div className="col-md-6 p-4 position-relative">
-          <img src={`https://c1.scryfall.com/file/scryfall-cards/normal${image}`} alt="Card Name" className="img-fluid max-wd-lg-40" />
-          {!visible && <div className="card-img-overlay d-flex justify-content-center align-items-center m-4" style={{backgroundColor: 'gray', opacity: 0.5}}>
-            <h1 className="card-title">OUT OF STOCK</h1>
-          </div>}
+        <div className="col-md-6 p-4">
+          <div className='position-relative d-inline-block'>
+            <img src={`https://c1.scryfall.com/file/scryfall-cards/normal${image}`} alt="Card Name" className="img-fluid max-wd-lg-40" />
+            {!visible && <div className="card-img-overlay d-flex justify-content-center align-items-center position-absolute" style={{backgroundColor: 'gray', opacity: 0.5}}>
+              <h1 className="card-title">OUT OF STOCK</h1>
+            </div>}
+          </div>
         </div>
         <div className="col-md-6 p-4">
           <div className="card">
@@ -165,7 +161,7 @@ export default function CardDetails() {
                 </div>
               </div>
               <div className="d-flex justify-content-between align-items-center">
-                <button type="submit" className="btn btn-primary" id="liveToastBtn">
+                <button type="submit" className="btn btn-primary" id="liveToastBtn" onClick={quantity === 0 ? handleToast : undefined}>
                   Add to Cart {cartItemAmount > 0 && <>({cartItemAmount})</>}
                 </button>
                 <Link to="/"><button className="btn btn-link">Back to Catalog</button></Link>
