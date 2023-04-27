@@ -42,6 +42,7 @@ export default function AuthForm({ action, onSignIn }) {
             autoFocus
             type="text"
             name="username"
+            autoComplete="username"
             className="form-control bg-light" />
         </label>
       </div>
@@ -52,6 +53,7 @@ export default function AuthForm({ action, onSignIn }) {
             required
             type="password"
             name="password"
+            autoComplete={action === 'sign-up' ? "current-password" : "new-password"}
             className="form-control bg-light" />
         </label>
       </div>

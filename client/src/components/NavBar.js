@@ -1,12 +1,13 @@
 import { useContext } from 'react';
 import {Link, Outlet} from 'react-router-dom';
 import { ShopContext } from './ShopContext';
+import { getTotalQuantity } from '../lib';
 import {FaShieldAlt, FaUser, FaShoppingCart, FaSignInAlt, FaSignOutAlt} from 'react-icons/fa';
 import { BsDatabaseFillAdd } from 'react-icons/bs';
 import './NavBar.css';
 
 export default function NavBar() {
-  const {user, handleSignOut} = useContext(ShopContext);
+  const {user, handleSignOut, cartInventory} = useContext(ShopContext);
 
   return (
     <>
@@ -43,8 +44,12 @@ export default function NavBar() {
                 </button>
               </li>}
               {!user?.isAdmin && <li className="nav-item">
-                <Link className="nav-link" to="/cart">
+                <Link className="nav-link position-relative" to="/cart">
                   <FaShoppingCart size={36} />
+                  {cartInventory.length > 0 && <span class="position-absolute top-1 start-75 translate-middle badge rounded-pill bg-danger">
+                    {getTotalQuantity(cartInventory)}
+                    <span class="visually-hidden">unread messages</span>
+                  </span>}
                   <span className="d-none d-md-inline ms-2 fw-semibold">Cart</span>
                 </Link>
               </li>}
