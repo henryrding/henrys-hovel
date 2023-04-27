@@ -10,6 +10,7 @@ export const ShopContextProvider = (props) => {
   const [isAuthorizing, setIsAuthorizing] = useState(true);
   const [cartInventory, setCartInventory] = useState([]);
   const navigate = useNavigate();
+
   useEffect(() => {
     const token = localStorage.getItem('tokenKey');
     const user = token ? jwtDecode(token) : null;
@@ -18,10 +19,27 @@ export const ShopContextProvider = (props) => {
   }, []);
 
   useEffect(() => {
-    const cartData = JSON.parse(localStorage.getItem('cart'));
-    if (cartData.length > 0) {
-      setCartInventory(cartData);
+    async function getCartData() {
+      const userToken = localStorage.getItem('tokenKey');
+      if (userToken) {
+        const user = jwtDecode(userToken);
+        setUser(user);
+        try {
+          const data = await fetchCartInventory();
+          setCartInventory(data);
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        const cartData = JSON.parse(localStorage.getItem('cart'));
+        if (cartData && cartData.length > 0) {
+          setCartInventory(cartData);
+        }
+      }
+      setIsAuthorizing(false);
     }
+
+    getCartData();
   }, []);
 
   useEffect(() => {
@@ -34,8 +52,8 @@ export const ShopContextProvider = (props) => {
     setUser(user);
     const cartData = JSON.parse(localStorage.getItem('cart'));
     try {
-      const oldInventory = await fetchCartInventory();
       if (cartData.length === 0) {
+        const oldInventory = await fetchCartInventory();
         setCartInventory(oldInventory);
       } else {
         await clearCartInventory();
@@ -44,6 +62,7 @@ export const ShopContextProvider = (props) => {
         }
         const newInventory = await fetchCartInventory();
         setCartInventory(newInventory);
+        localStorage.removeItem('cart');
       }
     } catch (err) {
       console.error(err.message)
