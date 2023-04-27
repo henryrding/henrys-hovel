@@ -145,6 +145,15 @@ app.post('/create-checkout-session/:userId', async (req, res, next) => {
     const params = [userId];
     const result = await db.query(sql, params);
     const cartItems = result.rows;
+    const taxRate = await stripe.taxRates.create({
+      display_name: 'Sales Tax',
+      inclusive: false,
+      percentage: 7.75,
+      country: 'US',
+      state: 'CA',
+      jurisdiction: 'US - CA',
+      description: 'CA Sales Tax',
+    });
     const session = await stripe.checkout.sessions.create({
       shipping_address_collection: { allowed_countries: ['US', 'CA'] },
       shipping_options: [
@@ -180,13 +189,14 @@ app.post('/create-checkout-session/:userId', async (req, res, next) => {
             },
             unit_amount: item.price
           },
-          quantity: item.quantity
+          quantity: item.quantity,
+          tax_rates: [taxRate.id]
         };
       }),
       client_reference_id: userId,
       mode: 'payment',
       success_url: 'http://localhost:3000/orders',
-      cancel_url: 'http://localhost:3000',
+      cancel_url: 'http://localhost:3000/cart',
     });
 
     res.redirect(303, session.url);
