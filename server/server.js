@@ -277,6 +277,8 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
     } catch (err) {
       next(err);
     }
+  } else {
+    res.status(200).json(payload);
   }
 });
 
