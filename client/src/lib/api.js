@@ -125,3 +125,20 @@ export async function clearCartInventory() {
   }
   return await res.json();
 }
+
+export async function fetchOrderItems() {
+  const token = localStorage.getItem('tokenKey');
+  if (!token) {
+    throw new Error('Token not found');
+  }
+  const req = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  };
+  const res = await fetch(`/api/orderItems`, req);
+  if (!res.ok) throw new Error(`fetch Error ${res.status}`);
+  return await res.json();
+}

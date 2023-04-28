@@ -83,7 +83,7 @@ export default function CardDetails() {
         <div className="col-md-6 p-4">
           <div className='position-relative d-inline-block'>
             <img src={`https://c1.scryfall.com/file/scryfall-cards/normal${image}`} alt="Card Name" className="img-fluid max-wd-lg-40" />
-            {!visible && <div className="card-img-overlay d-flex justify-content-center align-items-center position-absolute" style={{backgroundColor: 'gray', opacity: 0.5}}>
+            {!visible && <div className="card-img-overlay d-flex justify-content-center align-items-center position-absolute" style={{backgroundColor: 'gray', opacity: 0.5, borderRadius: "3.5%"}}>
               <h1 className="card-title">OUT OF STOCK</h1>
             </div>}
           </div>
