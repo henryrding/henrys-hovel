@@ -419,6 +419,24 @@ app.delete('/api/cartInventory', async (req, res, next) => {
   }
 });
 
+app.get('/api/orderItems', async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const sql = `
+      select *
+        from "orderItems"
+        join "orders" using ("orderId")
+        where "userId" = $1;
+    `;
+    const params = [userId];
+    const result = await db.query(sql, params);
+    const orderItems = result.rows;
+    res.json(orderItems);
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.use(errorMiddleware);
 
 app.listen(process.env.PORT, () => {
