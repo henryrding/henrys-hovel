@@ -64,6 +64,10 @@ export default function Orders() {
                   </Link>
                 </div>
               ))}
+              {pendingOrders.length === 0 && (
+                <div className="alert alert-info text-center mt-4" role="alert">
+                  No pending orders
+                </div>)}
             </div>
           </div>
             <div className="card mb-4">
@@ -84,6 +88,10 @@ export default function Orders() {
                     </Link>
                   </div>
                 ))}
+                {completedOrders.length === 0 && (
+                  <div className="alert alert-info text-center mt-4" role="alert">
+                    No orders found
+                  </div>)}
               </div>
             </div>
         </>)}
