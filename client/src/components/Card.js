@@ -5,7 +5,7 @@ export default function Card({ card }) {
   const { name, collectorNumber, setName, setCode, rarity, foil, price, cardId, image, visible } = card;
 
   return (
-    <div className="card mx-auto">
+    <div className="card mx-0">
       <Link className="d-none d-md-block position-relative" to={`/details/${cardId}`}>
         <img src={`https://c1.scryfall.com/file/scryfall-cards/normal${image}`} alt={`${name} #${collectorNumber} ${foil && "(foil)"}`} className="card-img-top mt-3" />
         {!visible && <div className="card-img-overlay d-flex justify-content-center align-items-center mt-3" style={{ backgroundColor: 'gray', opacity: 0.5, borderRadius: "3.5%" }}>
