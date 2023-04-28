@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
-import { fetchCartInventory, clearCartInventory, addCartInventory, deleteCartInventory, updateCartInventory } from '../lib';
+import { fetchCartInventory, clearCartInventory, addCartInventory, deleteCartInventory, updateCartInventory, fetchOrderItems } from '../lib';
 
 export const ShopContext = createContext();
 
@@ -9,6 +9,7 @@ export const ShopContextProvider = (props) => {
   const [user, setUser] = useState();
   const [isAuthorizing, setIsAuthorizing] = useState(true);
   const [cartInventory, setCartInventory] = useState([]);
+  const [orderItems, setOrderItems] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,10 +21,7 @@ export const ShopContextProvider = (props) => {
 
   useEffect(() => {
     async function getCartData() {
-      const userToken = localStorage.getItem('tokenKey');
-      if (userToken) {
-        const user = jwtDecode(userToken);
-        setUser(user);
+      if (user) {
         try {
           const data = await fetchCartInventory();
           setCartInventory(data);
@@ -38,13 +36,28 @@ export const ShopContextProvider = (props) => {
       }
       setIsAuthorizing(false);
     }
-
     getCartData();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartInventory));
   }, [cartInventory]);
+
+  useEffect(() => {
+    async function getOrderItems() {
+      if (user) {
+        try {
+          const data = await fetchOrderItems();
+          setOrderItems(data);
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setIsAuthorizing(false);
+        }
+      }
+    }
+    getOrderItems();
+  }, [user]);
 
   const handleSignIn = useCallback(async (result) => {
     const { user, token } = result;
@@ -99,10 +112,12 @@ export const ShopContextProvider = (props) => {
   const removeFromCart = useCallback(async (inventoryId) => {
     const updatedCartInventory = cartInventory.filter(card => card.inventoryId !== inventoryId);
     setCartInventory(updatedCartInventory);
-    try {
-      user && await deleteCartInventory(inventoryId);
-    } catch (err) {
-      console.error(err);
+    if (user) {
+      try {
+        await deleteCartInventory(inventoryId);
+      } catch (err) {
+        console.error(err);
+      }
     }
   }, [cartInventory, user]);
 
@@ -139,8 +154,9 @@ export const ShopContextProvider = (props) => {
     addToCart,
     removeFromCart,
     updateCartItemQuantity,
-    clearCart
-  }), [user, handleSignIn, handleSignOut, cartInventory, addToCart, removeFromCart, updateCartItemQuantity, clearCart]);
+    clearCart,
+    orderItems
+  }), [user, handleSignIn, handleSignOut, cartInventory, addToCart, removeFromCart, updateCartItemQuantity, clearCart, orderItems]);
 
   if (isAuthorizing) return null;
 
