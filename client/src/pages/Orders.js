@@ -12,7 +12,14 @@ export default function Orders() {
   const pendingOrders = pendingOrderItems.reduce((acc, curr) => {
     const index = acc.findIndex((item) => item.orderId === curr.orderId);
     if (index === -1) {
-      acc.push({ orderId: curr.orderId, orderNumber: curr.orderNumber, createdAt: curr.createdAt, items: [curr] });
+      acc.push({ orderId: curr.orderId,
+                 orderNumber: curr.orderNumber,
+                 totalPrice: curr.totalPrice,
+                 shippingName: curr.shippingName,
+                 shippingAddress: curr.shippingAddress,
+                 shippingCost: curr.shippingCost,
+                 createdAt: curr.createdAt,
+                 items: [curr] });
     } else {
       acc[index].items.push(curr);
     }
@@ -28,8 +35,6 @@ export default function Orders() {
     }
     return acc;
   }, []);
-
-  console.log(pendingOrders);
 
   return (
     <div className="container">
@@ -54,7 +59,9 @@ export default function Orders() {
                 <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom" key={order.orderId}>
                   <div className="text-break col-4 col-md-7 col-lg-8">{order.orderNumber}</div>
                   <div>{order.createdAt.substring(0, 10)}</div>
-                  <Link><button className="btn btn-primary">Order Details</button></Link>
+                  <Link to={`/orderDetails/${order.orderNumber}`} state={ order }>
+                    <button className="btn btn-primary">Order Details</button>
+                  </Link>
                 </div>
               ))}
             </div>
@@ -71,8 +78,8 @@ export default function Orders() {
                     <Link
                       to={{
                         pathname: `/orderDetails/${order.orderNumber}`,
-                        state: { data: order.items }}
-                        }>
+                        state: { order }
+                      }}>
                       <button className="btn btn-primary">Order Details</button>
                     </Link>
                   </div>
