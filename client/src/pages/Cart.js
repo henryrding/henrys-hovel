@@ -89,8 +89,8 @@ export default function Cart() {
                   <CartItem key={item.inventoryId} card={item} cartQuantity={handleQuantity(item)} />
                 ))}
               </div>
-              <div className="col-md-4 pt-md-4">
-                <h4 className="text-center mb-4">Cart Summary</h4>
+              <div className="col-md-4 pt-md-4 card border-0">
+                <h4 className="text-center mb-4 card-header border">Cart Summary</h4>
                 <div className="d-flex justify-content-between mb-2">
                   <span>Subtotal:</span>
                   <span>{toDollars(subtotal)}</span>

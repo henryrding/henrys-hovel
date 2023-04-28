@@ -45,7 +45,7 @@ export default function Catalog() {
   return (
     <div className="container">
       <Search />
-      <div className="row row-cols-2 row-cols-md-4 row-cols-lg-6">
+      <div className="row row-cols-2 row-cols-md-4 row-cols-lg-6 mb-4">
         {inventory?.map((card) => (
           <Fragment key={card.inventoryId}>
             <Card card={card} />
