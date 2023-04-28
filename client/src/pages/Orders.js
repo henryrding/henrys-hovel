@@ -1,19 +1,85 @@
+import { useContext } from "react";
 import { Link } from 'react-router-dom';
-import ToggleLamberto from '../components/ToggleLamberto';
-import './NotFound.css';
+import { ShopContext } from "../components/ShopContext";
+import ToggleLamberto from "../components/ToggleLamberto";
 
 export default function Orders() {
+  const { user, orderItems } = useContext(ShopContext);
+
+  const pendingOrderItems = orderItems.filter(order => !order.shipped);
+  const completedOrderItems = orderItems.filter(order => order.shipped);
+
+  const pendingOrders = pendingOrderItems.reduce((acc, curr) => {
+    const index = acc.findIndex((item) => item.orderId === curr.orderId);
+    if (index === -1) {
+      acc.push({ orderId: curr.orderId, orderNumber: curr.orderNumber, createdAt: curr.createdAt, items: [curr] });
+    } else {
+      acc[index].items.push(curr);
+    }
+    return acc;
+  }, []);
+
+  const completedOrders = completedOrderItems.reduce((acc, curr) => {
+    const index = acc.findIndex((item) => item.orderId === curr.orderId);
+    if (index === -1) {
+      acc.push({ orderId: curr.orderId, orderNumber: curr.orderNumber, createdAt: curr.createdAt, items: [curr] });
+    } else {
+      acc[index].items.push(curr);
+    }
+    return acc;
+  }, []);
+
+  console.log(pendingOrders);
+
   return (
-    <div className="Header-content">
-      <div className="row">
-        <div className="col text-center mb-5">
-          <h3>THIS IS THE ORDERS PAGE!</h3>
-          <ToggleLamberto />
-          <p className="text-muted" style={{ textDecorationSkipInk: "none" }}>
-            <Link to="/">Return to the catalog</Link>
-          </p>
-        </div>
-      </div>
+    <div className="container">
+      <h1 className="my-4">My Orders</h1>
+      {!user ? (
+        <>
+          <div className="alert alert-info text-center mt-4" role="alert">
+            You must be signed in to view orders!
+          </div>
+          <div className="d-flex justify-content-center">
+            <ToggleLamberto />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="card mb-4">
+            <div className="card-header">
+              <h2>Pending Orders</h2>
+            </div>
+            <div className="card-body">
+              {pendingOrders.map((order) => (
+                <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom" key={order.orderId}>
+                  <div className="text-break col-4 col-md-7 col-lg-8">{order.orderNumber}</div>
+                  <div>{order.createdAt.substring(0, 10)}</div>
+                  <Link><button className="btn btn-primary">Order Details</button></Link>
+                </div>
+              ))}
+            </div>
+          </div>
+            <div className="card mb-4">
+              <div className="card-header">
+                <h2>Completed Orders</h2>
+              </div>
+              <div className="card-body">
+                {completedOrders.map((order) => (
+                  <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom" key={order.orderId}>
+                    <div className="text-break col-4 col-md-7 col-lg-8">{order.orderNumber}</div>
+                    <div>{order.createdAt.substring(0, 10)}</div>
+                    <Link
+                      to={{
+                        pathname: `/orderDetails/${order.orderNumber}`,
+                        state: { data: order.items }}
+                        }>
+                      <button className="btn btn-primary">Order Details</button>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+        </>)}
     </div>
   );
 }
