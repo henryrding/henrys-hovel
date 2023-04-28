@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment } from 'react';
+import { useEffect, useState, useCallback, Fragment } from 'react';
 import { fetchCatalog } from '../lib';
 import Card from "../components/Card";
 import Search from "../components/Search";
@@ -8,6 +8,7 @@ export default function Catalog() {
   const [inventory, setInventory] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState();
+  const [searchResults, setsearchResults] = useState([]);
 
   useEffect(() => {
     async function loadCatalog() {
@@ -24,6 +25,10 @@ export default function Catalog() {
     loadCatalog();
   }, []);
 
+  const handleSearch = useCallback((results) => {
+    setsearchResults(results);
+  }, [])
+
   if (isLoading) return (
     <div className="d-flex justify-content-center align-items-center vh-100">
       <div className="spinner-border text-primary" role="status">
@@ -31,22 +36,23 @@ export default function Catalog() {
       </div>
     </div>
   );
+
   if (error) return (
-        <>
-        <div className="alert alert-info text-center mt-4" role="alert">
-          Error Loading Catalog: {error.message}
-        </div>
-        <div className="d-flex justify-content-center">
-          <ToggleLamberto />
-        </div>
-      </>
+    <>
+      <div className="alert alert-info text-center mt-4" role="alert">
+        Error Loading Catalog: {error.message}
+      </div>
+      <div className="d-flex justify-content-center">
+        <ToggleLamberto />
+      </div>
+    </>
   );
 
   return (
     <div className="container">
-      <Search />
+      <Search inventory={inventory} handleSearch={handleSearch} />
       <div className="row row-cols-2 row-cols-md-4 row-cols-lg-6 mb-4">
-        {inventory?.map((card) => (
+        {searchResults.map((card) => (
           <Fragment key={card.inventoryId}>
             <Card card={card} />
           </Fragment>
