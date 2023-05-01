@@ -29,7 +29,10 @@ export default function Orders() {
   const completedOrders = completedOrderItems.reduce((acc, curr) => {
     const index = acc.findIndex((item) => item.orderId === curr.orderId);
     if (index === -1) {
-      acc.push({ orderId: curr.orderId, orderNumber: curr.orderNumber, createdAt: curr.createdAt, items: [curr] });
+      acc.push({ orderId: curr.orderId,
+                 orderNumber: curr.orderNumber,
+                 createdAt: curr.createdAt,
+                 items: [curr] });
     } else {
       acc[index].items.push(curr);
     }
