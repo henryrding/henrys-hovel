@@ -87,6 +87,7 @@ export const ShopContextProvider = (props) => {
     localStorage.removeItem('cart');
     setUser(undefined);
     setCartInventory([]);
+    setOrderItems([]);
     navigate('/')
   }, [navigate]);
 
