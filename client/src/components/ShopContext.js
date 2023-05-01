@@ -51,12 +51,13 @@ export const ShopContextProvider = (props) => {
           setOrderItems(data);
         } catch (err) {
           console.error(err);
-        } finally {
-          setIsAuthorizing(false);
         }
+      } else {
+        setOrderItems([]);
       }
     }
     getOrderItems();
+    setIsAuthorizing(false);
   }, [user]);
 
   const handleSignIn = useCallback(async (result) => {
