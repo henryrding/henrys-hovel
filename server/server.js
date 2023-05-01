@@ -323,6 +323,12 @@ app.post('/api/cartInventory', async (req, res, next) => {
     if (!inventoryId || !quantity) {
       throw new ClientError(400, 'inventoryId and quantity are required fields');
     }
+    if (!inventoryId || !quantity) {
+      throw new ClientError(400, 'inventoryId and quantity are required fields');
+    }
+    if (!Number.isInteger(inventoryId) || inventoryId < 1 || !Number.isInteger(quantity) || quantity < 1) {
+      throw new ClientError(400, 'inventoryId and quantity must be non-negative integers');
+    }
     const sql = `
       insert into "cartInventory" ("inventoryId", "cartId", "quantity")
       values ($1, (
@@ -345,12 +351,18 @@ app.patch('/api/cartInventory/:inventoryId', async (req, res, next) => {
   try {
     const { userId } = req.user;
     const inventoryId = Number(req.params.inventoryId);
+    if (!inventoryId) {
+      throw new ClientError(400, 'inventoryId is a required field');
+    }
     if (!Number.isInteger(inventoryId) || inventoryId < 1) {
       throw new ClientError(400, 'inventoryId must be a positive integer');
     }
     const { quantity } = req.body;
-    if (typeof quantity !== 'number') {
-      throw new ClientError(400, 'quantity (number) is required');
+    if (!quantity) {
+      throw new ClientError(400, 'quantity is a required field');
+    }
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      throw new ClientError(400, 'quantity must be a positive integer');
     }
     const sql = `
       update "cartInventory"
@@ -377,8 +389,13 @@ app.patch('/api/cartInventory/:inventoryId', async (req, res, next) => {
 app.delete('/api/cartInventory/:inventoryId', async (req, res, next) => {
   try {
     const { userId } = req.user;
-    const { inventoryId } = req.params;
-
+    const inventoryId = Number(req.params.inventoryId);
+    if (!inventoryId) {
+      throw new ClientError(400, 'inventoryId is a required field');
+    }
+    if (!Number.isInteger(inventoryId) || inventoryId < 1) {
+      throw new ClientError(400, 'inventoryId must be a positive integer');
+    }
     const sql = `
       delete from "cartInventory"
       where "cartId" in (
@@ -436,6 +453,42 @@ app.get('/api/orderItems', async (req, res, next) => {
     const result = await db.query(sql, params);
     const orderItems = result.rows;
     res.json(orderItems);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.patch('/api/inventory/:cardId', async (req, res, next) => {
+  try {
+    const { isAdmin } = req.user;
+    if (!isAdmin) {
+      throw new ClientError(401, 'unauthorized: admin account required');
+    }
+    const cardId = req.params.cardId;
+    const myRegex = /^[a-z0-9-]+$/;
+    if (!myRegex.test(cardId.toString())) {
+      throw new ClientError(400, 'cardId must be a valid Id');
+    }
+    const { quantity, price } = req.body;
+    if (!quantity || !price) {
+      throw new ClientError(400, 'quantity and price are required fields');
+    }
+    if (!Number.isInteger(quantity) || quantity < 0 || !Number.isInteger(price) || price < 0) {
+      throw new ClientError(400, 'quantity and price must be non-negative integers');
+    }
+    const sql = `
+      update "inventory"
+        set "quantity" = $1,
+            "price" = $2
+        where "cardId" = $3
+      returning "cardId", "quantity", "price"
+    `;
+    const params = [quantity, price, cardId];
+    const result = await db.query(sql, params);
+    if (!result.rows[0]) {
+      throw new ClientError(404, `cannot find inventory item with cardId ${cardId}`);
+    }
+    res.json(result.rows[0]);
   } catch (err) {
     next(err);
   }
