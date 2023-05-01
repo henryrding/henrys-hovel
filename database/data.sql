@@ -34,8 +34,3 @@ insert into "carts"
   ("userId")
   values
     (1);
-
-insert into "cartInventory"
-  ("cartId", "inventoryId", "quantity")
-  values
-    (1, 1, 1);
