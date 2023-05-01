@@ -28,14 +28,10 @@ insert into "inventory"
 insert into "users"
   ("username", "hashedPassword", "firstName", "lastName", "email", "isAdmin")
   values
+    ('admin', '$argon2id$v=19$m=4096,t=3,p=1$8G36FRSBhDmYKU2tPkFSrQ$q7fjPwfVVMJ/mXqh6H6T9U0hPBPU7I9yusMhEbJJOYI', 'Henry', 'Ding', 'dinghenryr@gmail.com', true),
     ('johnsmith', '$argon2id$v=19$m=4096,t=3,p=1$hc/LDCApdy3ReDg8ZAdjeg$55ZlZH7oZL4aoqeLoqc0axVlwB04j9gpVr+vOSEYhGM', 'John', 'Smith', 'johnsmith@example.com', false);
 
 insert into "carts"
   ("userId")
   values
-    (1);
-
-insert into "cartInventory"
-  ("cartId", "inventoryId", "quantity")
-  values
-    (1, 1, 1);
+    (2);

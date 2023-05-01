@@ -80,15 +80,19 @@ app.post('/api/auth/sign-up', async (req, res, next) => {
     const params = [username, hashedPassword, firstName, lastName, email, isAdmin];
     const result = await db.query(sql, params);
     const [user] = result.rows;
-    const sql2 = `
-      insert into "carts" ("userId")
-        values ($1)
-        returning *
-    `;
-    const params2 = [user.userId];
-    const result2 = await db.query(sql2, params2);
-    const [cart] = result2.rows;
-    res.status(201).json({ user, cart });
+    if (!user.isAdmin) {
+      const sql2 = `
+        insert into "carts" ("userId")
+          values ($1)
+          returning *
+      `;
+      const params2 = [user.userId];
+      const result2 = await db.query(sql2, params2);
+      const [cart] = result2.rows;
+      res.status(201).json({ user, cart });
+    } else {
+      res.status(201).json({ user });
+    }
   } catch (err) {
     next(err);
   }

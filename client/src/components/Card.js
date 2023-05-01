@@ -1,8 +1,11 @@
+import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { toDollars } from '../lib';
+import { ShopContext } from "../components/ShopContext";
 
 export default function Card({ card }) {
-  const { name, collectorNumber, setName, setCode, rarity, foil, price, cardId, image, visible } = card;
+  const { name, collectorNumber, setName, setCode, rarity, foil, price, quantity, cardId, image, visible } = card;
+  const { user } = useContext(ShopContext);
 
   return (
     <div className="card mx-0">
@@ -23,6 +26,7 @@ export default function Card({ card }) {
         <p className="card-text m-0">Set: {setName} ({setCode.toUpperCase()})</p>
         <p className="card-text m-0">Rarity: {rarity}</p>
         <p className="card-text m-0">Price: {toDollars(price)}</p>
+        {user?.isAdmin && <p className="card-text m-0">Quantity: {quantity}</p>}
       </div>
     </div>
   );

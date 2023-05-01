@@ -105,11 +105,20 @@ export default function Cart() {
                   <span>{toDollars(subtotal + (subtotal * 0.0775))}</span>
                 </div>
                 <div className="d-grid gap-2 pb-4">
-                  {user && subtotal >= 50 && <form action={`/create-checkout-session/${user.userId}`} method="POST">
-                    <button type="submit" className="btn btn-primary w-100">Checkout</button>
-                  </form>}
-                  {!user && <button type="button" className="btn btn-primary" onClick={() => navigate('/sign-in')}>Sign in to checkout!</button>}
-                  {user && subtotal < 50 && <button type="button" className="btn btn-primary" id="liveToastBtn" onClick={handleClick}>Checkout</button>}
+                  {user && subtotal >= 50 &&
+                    <form action={`/create-checkout-session/${user.userId}`} method="POST">
+                      <button type="submit" className="btn btn-primary w-100">
+                        Checkout
+                      </button>
+                    </form>}
+                  {!user &&
+                    <button type="button" className="btn btn-primary" onClick={() => navigate('/sign-in')}>
+                      Sign in to checkout!
+                    </button>}
+                  {user && subtotal < 50 &&
+                    <button type="button" className="btn btn-primary" id="liveToastBtn" onClick={handleClick}>
+                      Checkout
+                    </button>}
                   <button type="button" className="btn btn-danger" onClick={clearCart}>Clear cart</button>
                   <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>Continue Shopping</button>
                 </div>
