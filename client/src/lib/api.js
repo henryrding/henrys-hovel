@@ -142,3 +142,24 @@ export async function fetchOrderItems() {
   if (!res.ok) throw new Error(`fetch Error ${res.status}`);
   return await res.json();
 }
+
+export async function updateInventory(inventoryId, quantity, price) {
+  const token = localStorage.getItem('tokenKey');
+  if (!token) {
+    throw new Error('Token not found');
+  }
+  const req = {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ quantity, price }),
+  };
+  const res = await fetch(`/api/inventory/${inventoryId}`, req);
+  if (!res.ok) {
+    const message = await res.text(res.body);
+    throw new Error(`${message.substring(10, message.length - 2)}`);
+  }
+  return await res.json();
+}
