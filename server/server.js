@@ -33,7 +33,7 @@ app.get('/api/inventory', async (req, res, next) => {
     const sql = `
       select *
         from "inventory"
-        order by "inventoryId"
+       order by "inventoryId";
     `;
     const result = await db.query(sql);
     res.json(result.rows);
@@ -52,7 +52,7 @@ app.get('/api/inventory/:cardId', async (req, res, next) => {
     const sql = `
       select *
         from "inventory"
-        where "cardId" = $1
+       where "cardId" = $1;
     `;
     const params = [cardId];
     const result = await db.query(sql, params);
@@ -75,7 +75,7 @@ app.post('/api/auth/sign-up', async (req, res, next) => {
     const sql = `
       insert into "users" ("username", "hashedPassword", "firstName", "lastName", "email", "isAdmin")
         values ($1, $2, $3, $4, $5, $6)
-        returning "userId", "username", "firstName", "lastName", "email", "createdAt"
+        returning "userId", "username", "firstName", "lastName", "email", "createdAt";
     `;
     const params = [username, hashedPassword, firstName, lastName, email, isAdmin];
     const result = await db.query(sql, params);
@@ -84,7 +84,7 @@ app.post('/api/auth/sign-up', async (req, res, next) => {
       const sql2 = `
         insert into "carts" ("userId")
           values ($1)
-          returning *
+          returning *;
       `;
       const params2 = [user.userId];
       const result2 = await db.query(sql2, params2);
@@ -106,13 +106,13 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
     }
     const sql = `
       select "userId",
-            "hashedPassword",
-            "firstName",
-            "lastName",
-            "email",
-            "isAdmin"
+             "hashedPassword",
+             "firstName",
+             "lastName",
+             "email",
+             "isAdmin"
         from "users"
-        where "username" = $1
+       where "username" = $1;
     `;
     const params = [username];
     const result = await db.query(sql, params);
@@ -138,13 +138,13 @@ app.post('/create-checkout-session/:userId', async (req, res, next) => {
     const { userId } = req.params;
     const sql = `
     select "inventory"."price",
-       "inventory"."name",
-       "cartInventory"."quantity"
-    from "inventory"
-    join "cartInventory" using ("inventoryId")
-    join "carts" using ("cartId")
-    join "users" using ("userId")
-    where "userId" = $1
+           "inventory"."name",
+           "cartInventory"."quantity"
+      from "inventory"
+      join "cartInventory" using ("inventoryId")
+      join "carts" using ("cartId")
+      join "users" using ("userId")
+     where "userId" = $1;
     `;
     const params = [userId];
     const result = await db.query(sql, params);
@@ -221,8 +221,8 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
     try {
       const sql = `
         insert into "orders" ("orderNumber", "userId", "totalPrice", "shippingName", "shippingAddress", "shippingCost", "shipped")
-        values ($1, $2, $3, $4, $5, $6, $7)
-        returning *;
+          values ($1, $2, $3, $4, $5, $6, $7)
+          returning *;
       `;
       const params = [orderNumber, userId, totalPrice, shippingName, shippingAddress, shippingCost, false];
       const result = await db.query(sql, params);
@@ -231,68 +231,68 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
       const sql2 = `
       insert into "orderItems" ("inventoryId", "orderId", "name", "collectorNumber", "setName", "setCode", "rarity", "foil", "price", "quantity", "cardId", "image", "manaCost", "typeLine", "oracleText", "power", "toughness", "flavorText", "artist", "visible" )
       select "ci"."inventoryId",
-        "orders"."orderId",
-        "i"."name",
-        "i"."collectorNumber",
-        "i"."setName",
-        "i"."setCode",
-        "i"."rarity",
-        "i"."foil",
-        "i"."price",
-        "ci"."quantity",
-        "i"."cardId",
-        "i"."image",
-        "i"."manaCost",
-        "i"."typeLine",
-        "i"."oracleText",
-        "i"."power",
-        "i"."toughness",
-        "i"."flavorText",
-        "i"."artist",
-        "i"."visible"
+             "orders"."orderId",
+             "i"."name",
+             "i"."collectorNumber",
+             "i"."setName",
+             "i"."setCode",
+             "i"."rarity",
+             "i"."foil",
+             "i"."price",
+             "ci"."quantity",
+             "i"."cardId",
+             "i"."image",
+             "i"."manaCost",
+             "i"."typeLine",
+             "i"."oracleText",
+             "i"."power",
+             "i"."toughness",
+             "i"."flavorText",
+             "i"."artist",
+             "i"."visible"
         from "inventory" as "i"
         join "cartInventory" as "ci" using ("inventoryId")
         join "carts" using ("cartId")
         join "users" using ("userId")
         join "orders" using ("userId")
-        where "userId" = $1 and "orderId" = $2;
+       where "userId" = $1 and "orderId" = $2;
       `;
       const params2 = [userId, orderId];
       await db.query(sql2, params2);
       const sql3 = `
       update "inventory"
-        set "quantity" = "inventory"."quantity" - "cartInventory"."quantity",
-            "visible" = CASE WHEN "inventory"."quantity" - "cartInventory"."quantity" <= 0 THEN false ELSE "inventory"."visible" END
+         set "quantity" = "inventory"."quantity" - "cartInventory"."quantity",
+             "visible" = CASE WHEN "inventory"."quantity" - "cartInventory"."quantity" <= 0 THEN false ELSE "inventory"."visible" END
         from "cartInventory"
-        where "cartInventory"."inventoryId" = "inventory"."inventoryId"
-          and "cartInventory"."cartId" IN (
+       where "cartInventory"."inventoryId" = "inventory"."inventoryId"
+         and "cartInventory"."cartId" IN (
             select "cartId"
-            from "carts"
-            where "userId" = $1
-          );
+              from "carts"
+             where "userId" = $1
+            );
       `;
       const params3 = [userId];
       await db.query(sql3, params3);
       const sql4 = `
         delete from "cartInventory"
           where "cartId" in (
-          select "cartId"
-          from "carts"
-          where "userId" = $1
-          )
+            select "cartId"
+              from "carts"
+             where "userId" = $1
+            )
           returning *;
       `;
       const params4 = [userId];
       await db.query(sql4, params4);
       const sql5 = `
         update "cartInventory"
-        set "quantity" = least("cartInventory"."quantity", "inventory"."quantity")
-        from "inventory"
-        where "cartInventory"."inventoryId" = "inventory"."inventoryId"
-        and "cartInventory"."quantity" > "inventory"."quantity";
+           set "quantity" = least("cartInventory"."quantity", "inventory"."quantity")
+          from "inventory"
+         where "cartInventory"."inventoryId" = "inventory"."inventoryId"
+           and "cartInventory"."quantity" > "inventory"."quantity";
 
         delete from "cartInventory"
-          where "quantity" = 0;
+         where "quantity" = 0;
       `;
       await db.query(sql5);
       res.status(200).json(order);
@@ -313,7 +313,7 @@ app.get('/api/cartInventory', async (req, res, next) => {
       select "cartInventory".*
         from "cartInventory"
         join "carts" using ("cartId")
-        where "userId" = $1;
+       where "userId" = $1;
     `;
     const params = [userId];
     const result = await db.query(sql, params);
@@ -339,12 +339,12 @@ app.post('/api/cartInventory', async (req, res, next) => {
     }
     const sql = `
       insert into "cartInventory" ("inventoryId", "cartId", "quantity")
-      values ($1, (
-        select "cartId"
-        from "carts"
-        where "userId" = $2
-      ), $3)
-      returning *
+        values ($1, (
+          select "cartId"
+            from "carts"
+           where "userId" = $2
+        ), $3)
+        returning *;
     `;
     const params = [inventoryId, userId, quantity];
     const result = await db.query(sql, params);
@@ -374,13 +374,13 @@ app.patch('/api/cartInventory/:inventoryId', async (req, res, next) => {
     }
     const sql = `
       update "cartInventory"
-        set "quantity" = $1
-        where "cartId" in (
+         set "quantity" = $1
+       where "cartId" in (
           select "cartId"
             from "carts"
-            where "userId" = $2
+           where "userId" = $2
         ) and "inventoryId" = $3
-        returning *
+        returning *;
     `;
     const params = [quantity, userId, inventoryId];
     const result = await db.query(sql, params);
@@ -406,12 +406,12 @@ app.delete('/api/cartInventory/:inventoryId', async (req, res, next) => {
     }
     const sql = `
       delete from "cartInventory"
-      where "cartId" in (
+       where "cartId" in (
         select "cartId"
           from "carts"
           where "userId" = $1
       ) and "inventoryId" = $2
-      returning *
+       returning *;
     `;
     const params = [userId, inventoryId];
     const result = await db.query(sql, params);
@@ -431,12 +431,12 @@ app.delete('/api/cartInventory', async (req, res, next) => {
 
     const sql = `
       delete from "cartInventory"
-      where "cartId" in (
-        select "cartId"
-        from "carts"
+        where "cartId" in (
+       select "cartId"
+         from "carts"
         where "userId" = $1
       )
-      returning *
+      returning *;
     `;
     const params = [userId];
     const result = await db.query(sql, params);
@@ -455,7 +455,7 @@ app.get('/api/orderItems', async (req, res, next) => {
       select *
         from "orderItems"
         join "orders" using ("orderId")
-        where "userId" = $1;
+       where "userId" = $1;
     `;
     const params = [userId];
     const result = await db.query(sql, params);
@@ -486,11 +486,11 @@ app.patch('/api/inventory/:cardId', async (req, res, next) => {
     }
     const sql = `
       update "inventory"
-        set "quantity" = $1,
-            "price" = $2,
-            "visible" = CASE WHEN $1 = 0 THEN false ELSE true END
-        where "cardId" = $3
-      returning *
+         set "quantity" = $1,
+             "price" = $2,
+             "visible" = CASE WHEN $1 = 0 THEN false ELSE true END
+       where "cardId" = $3
+      returning *;
     `;
     const params = [quantity, price, cardId];
     const result = await db.query(sql, params);
@@ -501,8 +501,8 @@ app.patch('/api/inventory/:cardId', async (req, res, next) => {
     if (updatedCard.quantity === 0) {
       const sql2 = `
         delete from "cartInventory"
-        where "inventoryId" = $1
-        returning *
+          where "inventoryId" = $1
+          returning *;
       `;
       const params2 = [updatedCard.inventoryId];
       const result2 = await db.query(sql2, params2);
