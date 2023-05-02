@@ -153,12 +153,12 @@ export const ShopContextProvider = (props) => {
     handleSignIn,
     handleSignOut,
     cartInventory,
+    orderItems,
     addToCart,
     removeFromCart,
     updateCartItemQuantity,
-    clearCart,
-    orderItems
-  }), [user, handleSignIn, handleSignOut, cartInventory, addToCart, removeFromCart, updateCartItemQuantity, clearCart, orderItems]);
+    clearCart
+  }), [user, handleSignIn, handleSignOut, cartInventory, orderItems, addToCart, removeFromCart, updateCartItemQuantity, clearCart]);
 
   if (isAuthorizing) return null;
 

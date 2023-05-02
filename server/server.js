@@ -33,7 +33,7 @@ app.get('/api/inventory', async (req, res, next) => {
     const sql = `
       select *
         from "inventory"
-        order by "inventoryId"
+       order by "inventoryId";
     `;
     const result = await db.query(sql);
     res.json(result.rows);
@@ -52,7 +52,7 @@ app.get('/api/inventory/:cardId', async (req, res, next) => {
     const sql = `
       select *
         from "inventory"
-        where "cardId" = $1
+       where "cardId" = $1;
     `;
     const params = [cardId];
     const result = await db.query(sql, params);
@@ -75,7 +75,7 @@ app.post('/api/auth/sign-up', async (req, res, next) => {
     const sql = `
       insert into "users" ("username", "hashedPassword", "firstName", "lastName", "email", "isAdmin")
         values ($1, $2, $3, $4, $5, $6)
-        returning "userId", "username", "firstName", "lastName", "email", "createdAt"
+        returning "userId", "username", "firstName", "lastName", "email", "createdAt";
     `;
     const params = [username, hashedPassword, firstName, lastName, email, isAdmin];
     const result = await db.query(sql, params);
@@ -84,7 +84,7 @@ app.post('/api/auth/sign-up', async (req, res, next) => {
       const sql2 = `
         insert into "carts" ("userId")
           values ($1)
-          returning *
+          returning *;
       `;
       const params2 = [user.userId];
       const result2 = await db.query(sql2, params2);
@@ -106,13 +106,13 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
     }
     const sql = `
       select "userId",
-            "hashedPassword",
-            "firstName",
-            "lastName",
-            "email",
-            "isAdmin"
+             "hashedPassword",
+             "firstName",
+             "lastName",
+             "email",
+             "isAdmin"
         from "users"
-        where "username" = $1
+       where "username" = $1;
     `;
     const params = [username];
     const result = await db.query(sql, params);
@@ -138,13 +138,13 @@ app.post('/create-checkout-session/:userId', async (req, res, next) => {
     const { userId } = req.params;
     const sql = `
     select "inventory"."price",
-       "inventory"."name",
-       "cartInventory"."quantity"
-    from "inventory"
-    join "cartInventory" using ("inventoryId")
-    join "carts" using ("cartId")
-    join "users" using ("userId")
-    where "userId" = $1
+           "inventory"."name",
+           "cartInventory"."quantity"
+      from "inventory"
+      join "cartInventory" using ("inventoryId")
+      join "carts" using ("cartId")
+      join "users" using ("userId")
+     where "userId" = $1;
     `;
     const params = [userId];
     const result = await db.query(sql, params);
@@ -221,8 +221,8 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
     try {
       const sql = `
         insert into "orders" ("orderNumber", "userId", "totalPrice", "shippingName", "shippingAddress", "shippingCost", "shipped")
-        values ($1, $2, $3, $4, $5, $6, $7)
-        returning *
+          values ($1, $2, $3, $4, $5, $6, $7)
+          returning *;
       `;
       const params = [orderNumber, userId, totalPrice, shippingName, shippingAddress, shippingCost, false];
       const result = await db.query(sql, params);
@@ -231,63 +231,71 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
       const sql2 = `
       insert into "orderItems" ("inventoryId", "orderId", "name", "collectorNumber", "setName", "setCode", "rarity", "foil", "price", "quantity", "cardId", "image", "manaCost", "typeLine", "oracleText", "power", "toughness", "flavorText", "artist", "visible" )
       select "ci"."inventoryId",
-        "orders"."orderId",
-        "i"."name",
-        "i"."collectorNumber",
-        "i"."setName",
-        "i"."setCode",
-        "i"."rarity",
-        "i"."foil",
-        "i"."price",
-        "ci"."quantity",
-        "i"."cardId",
-        "i"."image",
-        "i"."manaCost",
-        "i"."typeLine",
-        "i"."oracleText",
-        "i"."power",
-        "i"."toughness",
-        "i"."flavorText",
-        "i"."artist",
-        "i"."visible"
+             "orders"."orderId",
+             "i"."name",
+             "i"."collectorNumber",
+             "i"."setName",
+             "i"."setCode",
+             "i"."rarity",
+             "i"."foil",
+             "i"."price",
+             "ci"."quantity",
+             "i"."cardId",
+             "i"."image",
+             "i"."manaCost",
+             "i"."typeLine",
+             "i"."oracleText",
+             "i"."power",
+             "i"."toughness",
+             "i"."flavorText",
+             "i"."artist",
+             "i"."visible"
         from "inventory" as "i"
         join "cartInventory" as "ci" using ("inventoryId")
         join "carts" using ("cartId")
         join "users" using ("userId")
         join "orders" using ("userId")
-        where "userId" = $1 and "orderId" = $2
+       where "userId" = $1 and "orderId" = $2;
       `;
       const params2 = [userId, orderId];
-      const result2 = await db.query(sql2, params2);
-      const orderItems = result2.rows;
+      await db.query(sql2, params2);
       const sql3 = `
       update "inventory"
-        set "quantity" = "inventory"."quantity" - "cartInventory"."quantity",
-            "visible" = CASE WHEN "inventory"."quantity" - "cartInventory"."quantity" <= 0 THEN false ELSE "inventory"."visible" END
+         set "quantity" = "inventory"."quantity" - "cartInventory"."quantity",
+             "visible" = CASE WHEN "inventory"."quantity" - "cartInventory"."quantity" <= 0 THEN false ELSE "inventory"."visible" END
         from "cartInventory"
-        where "cartInventory"."inventoryId" = "inventory"."inventoryId"
-          and "cartInventory"."cartId" IN (
+       where "cartInventory"."inventoryId" = "inventory"."inventoryId"
+         and "cartInventory"."cartId" IN (
             select "cartId"
-            from "carts"
-            where "userId" = $1
-          );
+              from "carts"
+             where "userId" = $1
+            );
       `;
       const params3 = [userId];
-      const result3 = await db.query(sql3, params3);
-      const updatedInventory = result3.rows;
+      await db.query(sql3, params3);
       const sql4 = `
-      delete from "cartInventory"
-      where "cartId" in (
-        select "cartId"
-        from "carts"
-        where "userId" = $1
-      )
-      returning *
-    `;
+        delete from "cartInventory"
+          where "cartId" in (
+            select "cartId"
+              from "carts"
+             where "userId" = $1
+            )
+          returning *;
+      `;
       const params4 = [userId];
-      const result4 = await db.query(sql4, params4);
-      const deletedItems = result4.rows;
-      res.status(200).json({ order, orderItems, updatedInventory, deletedItems });
+      await db.query(sql4, params4);
+      const sql5 = `
+        update "cartInventory"
+           set "quantity" = least("cartInventory"."quantity", "inventory"."quantity")
+          from "inventory"
+         where "cartInventory"."inventoryId" = "inventory"."inventoryId"
+           and "cartInventory"."quantity" > "inventory"."quantity";
+
+        delete from "cartInventory"
+         where "quantity" = 0;
+      `;
+      await db.query(sql5);
+      res.status(200).json(order);
     } catch (err) {
       next(err);
     }
@@ -305,7 +313,7 @@ app.get('/api/cartInventory', async (req, res, next) => {
       select "cartInventory".*
         from "cartInventory"
         join "carts" using ("cartId")
-        where "userId" = $1;
+       where "userId" = $1;
     `;
     const params = [userId];
     const result = await db.query(sql, params);
@@ -323,14 +331,20 @@ app.post('/api/cartInventory', async (req, res, next) => {
     if (!inventoryId || !quantity) {
       throw new ClientError(400, 'inventoryId and quantity are required fields');
     }
+    if (!inventoryId || !quantity) {
+      throw new ClientError(400, 'inventoryId and quantity are required fields');
+    }
+    if (!Number.isInteger(inventoryId) || inventoryId < 1 || !Number.isInteger(quantity) || quantity < 1) {
+      throw new ClientError(400, 'inventoryId and quantity must be non-negative integers');
+    }
     const sql = `
       insert into "cartInventory" ("inventoryId", "cartId", "quantity")
-      values ($1, (
-        select "cartId"
-        from "carts"
-        where "userId" = $2
-      ), $3)
-      returning *
+        values ($1, (
+          select "cartId"
+            from "carts"
+           where "userId" = $2
+        ), $3)
+        returning *;
     `;
     const params = [inventoryId, userId, quantity];
     const result = await db.query(sql, params);
@@ -345,22 +359,28 @@ app.patch('/api/cartInventory/:inventoryId', async (req, res, next) => {
   try {
     const { userId } = req.user;
     const inventoryId = Number(req.params.inventoryId);
+    if (!inventoryId) {
+      throw new ClientError(400, 'inventoryId is a required field');
+    }
     if (!Number.isInteger(inventoryId) || inventoryId < 1) {
       throw new ClientError(400, 'inventoryId must be a positive integer');
     }
     const { quantity } = req.body;
-    if (typeof quantity !== 'number') {
-      throw new ClientError(400, 'quantity (number) is required');
+    if (!quantity) {
+      throw new ClientError(400, 'quantity is a required field');
+    }
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      throw new ClientError(400, 'quantity must be a positive integer');
     }
     const sql = `
       update "cartInventory"
-        set "quantity" = $1
-        where "cartId" in (
+         set "quantity" = $1
+       where "cartId" in (
           select "cartId"
             from "carts"
-            where "userId" = $2
+           where "userId" = $2
         ) and "inventoryId" = $3
-        returning *
+        returning *;
     `;
     const params = [quantity, userId, inventoryId];
     const result = await db.query(sql, params);
@@ -377,16 +397,21 @@ app.patch('/api/cartInventory/:inventoryId', async (req, res, next) => {
 app.delete('/api/cartInventory/:inventoryId', async (req, res, next) => {
   try {
     const { userId } = req.user;
-    const { inventoryId } = req.params;
-
+    const inventoryId = Number(req.params.inventoryId);
+    if (!inventoryId) {
+      throw new ClientError(400, 'inventoryId is a required field');
+    }
+    if (!Number.isInteger(inventoryId) || inventoryId < 1) {
+      throw new ClientError(400, 'inventoryId must be a positive integer');
+    }
     const sql = `
       delete from "cartInventory"
-      where "cartId" in (
+       where "cartId" in (
         select "cartId"
           from "carts"
           where "userId" = $1
       ) and "inventoryId" = $2
-      returning *
+       returning *;
     `;
     const params = [userId, inventoryId];
     const result = await db.query(sql, params);
@@ -406,12 +431,12 @@ app.delete('/api/cartInventory', async (req, res, next) => {
 
     const sql = `
       delete from "cartInventory"
-      where "cartId" in (
-        select "cartId"
-        from "carts"
+        where "cartId" in (
+       select "cartId"
+         from "carts"
         where "userId" = $1
       )
-      returning *
+      returning *;
     `;
     const params = [userId];
     const result = await db.query(sql, params);
@@ -430,12 +455,65 @@ app.get('/api/orderItems', async (req, res, next) => {
       select *
         from "orderItems"
         join "orders" using ("orderId")
-        where "userId" = $1;
+       where "userId" = $1;
     `;
     const params = [userId];
     const result = await db.query(sql, params);
     const orderItems = result.rows;
     res.json(orderItems);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.patch('/api/inventory/:cardId', async (req, res, next) => {
+  try {
+    const { isAdmin } = req.user;
+    if (!isAdmin) {
+      throw new ClientError(401, 'unauthorized: admin account required');
+    }
+    const cardId = req.params.cardId;
+    const myRegex = /^[a-z0-9-]+$/;
+    if (!myRegex.test(cardId.toString())) {
+      throw new ClientError(400, 'cardId must be a valid Id');
+    }
+    const { quantity, price } = req.body;
+    if (quantity === undefined || price === undefined) {
+      throw new ClientError(400, 'quantity and price are required fields');
+    }
+    if (!Number.isInteger(quantity) || quantity < 0 || !Number.isInteger(price) || price < 0) {
+      throw new ClientError(400, 'quantity and price must be non-negative integers');
+    }
+    const sql = `
+      update "inventory"
+         set "quantity" = $1,
+             "price" = $2,
+             "visible" = CASE WHEN $1 = 0 THEN false ELSE true END
+       where "cardId" = $3
+      returning *;
+    `;
+    const params = [quantity, price, cardId];
+    const result = await db.query(sql, params);
+    const updatedCard = result.rows[0];
+    if (!updatedCard) {
+      throw new ClientError(404, `cannot find inventory item with cardId ${cardId}`);
+    }
+    if (updatedCard.quantity === 0) {
+      const sql2 = `
+        delete from "cartInventory"
+          where "inventoryId" = $1
+          returning *;
+      `;
+      const params2 = [updatedCard.inventoryId];
+      const result2 = await db.query(sql2, params2);
+      const deletedCards = result2.rows;
+      if (!deletedCards) {
+        throw new ClientError(404, `no cards with cardId ${cardId} were deleted from carts`);
+      }
+      res.json({ updatedCard, deletedCards });
+    } else {
+      res.json({ updatedCard });
+    }
   } catch (err) {
     next(err);
   }
