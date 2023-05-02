@@ -222,7 +222,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
       const sql = `
         insert into "orders" ("orderNumber", "userId", "totalPrice", "shippingName", "shippingAddress", "shippingCost", "shipped")
         values ($1, $2, $3, $4, $5, $6, $7)
-        returning *
+        returning *;
       `;
       const params = [orderNumber, userId, totalPrice, shippingName, shippingAddress, shippingCost, false];
       const result = await db.query(sql, params);
@@ -255,11 +255,10 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
         join "carts" using ("cartId")
         join "users" using ("userId")
         join "orders" using ("userId")
-        where "userId" = $1 and "orderId" = $2
+        where "userId" = $1 and "orderId" = $2;
       `;
       const params2 = [userId, orderId];
-      const result2 = await db.query(sql2, params2);
-      const orderItems = result2.rows;
+      await db.query(sql2, params2);
       const sql3 = `
       update "inventory"
         set "quantity" = "inventory"."quantity" - "cartInventory"."quantity",
@@ -273,21 +272,30 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
           );
       `;
       const params3 = [userId];
-      const result3 = await db.query(sql3, params3);
-      const updatedInventory = result3.rows;
+      await db.query(sql3, params3);
       const sql4 = `
-      delete from "cartInventory"
-      where "cartId" in (
-        select "cartId"
-        from "carts"
-        where "userId" = $1
-      )
-      returning *
-    `;
+        delete from "cartInventory"
+          where "cartId" in (
+          select "cartId"
+          from "carts"
+          where "userId" = $1
+          )
+          returning *;
+      `;
       const params4 = [userId];
-      const result4 = await db.query(sql4, params4);
-      const deletedItems = result4.rows;
-      res.status(200).json({ order, orderItems, updatedInventory, deletedItems });
+      await db.query(sql4, params4);
+      const sql5 = `
+        update "cartInventory"
+        set "quantity" = least("cartInventory"."quantity", "inventory"."quantity")
+        from "inventory"
+        where "cartInventory"."inventoryId" = "inventory"."inventoryId"
+        and "cartInventory"."quantity" > "inventory"."quantity";
+
+        delete from "cartInventory"
+          where "quantity" = 0;
+      `;
+      await db.query(sql5);
+      res.status(200).json(order);
     } catch (err) {
       next(err);
     }
@@ -470,7 +478,7 @@ app.patch('/api/inventory/:cardId', async (req, res, next) => {
       throw new ClientError(400, 'cardId must be a valid Id');
     }
     const { quantity, price } = req.body;
-    if (!quantity || !price) {
+    if (quantity === undefined || price === undefined) {
       throw new ClientError(400, 'quantity and price are required fields');
     }
     if (!Number.isInteger(quantity) || quantity < 0 || !Number.isInteger(price) || price < 0) {
@@ -479,16 +487,33 @@ app.patch('/api/inventory/:cardId', async (req, res, next) => {
     const sql = `
       update "inventory"
         set "quantity" = $1,
-            "price" = $2
+            "price" = $2,
+            "visible" = CASE WHEN $1 = 0 THEN false ELSE true END
         where "cardId" = $3
-      returning "cardId", "quantity", "price"
+      returning *
     `;
     const params = [quantity, price, cardId];
     const result = await db.query(sql, params);
-    if (!result.rows[0]) {
+    const updatedCard = result.rows[0];
+    if (!updatedCard) {
       throw new ClientError(404, `cannot find inventory item with cardId ${cardId}`);
     }
-    res.json(result.rows[0]);
+    if (updatedCard.quantity === 0) {
+      const sql2 = `
+        delete from "cartInventory"
+        where "inventoryId" = $1
+        returning *
+      `;
+      const params2 = [updatedCard.inventoryId];
+      const result2 = await db.query(sql2, params2);
+      const deletedCards = result2.rows;
+      if (!deletedCards) {
+        throw new ClientError(404, `no cards with cardId ${cardId} were deleted from carts`);
+      }
+      res.json({ updatedCard, deletedCards });
+    } else {
+      res.json({ updatedCard });
+    }
   } catch (err) {
     next(err);
   }
