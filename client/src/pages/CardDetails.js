@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { ShopContext } from '../components/ShopContext';
 import ToggleLamberto from '../components/ToggleLamberto';
-import { fetchCard, toDollars, createLineBreaks, handleToast } from '../lib';
+import { fetchCard, updateInventory, toDollars, createLineBreaks, handleToast } from '../lib';
 import { AiOutlinePlusSquare, AiOutlineMinusSquare } from 'react-icons/ai';
 import { BiErrorCircle } from 'react-icons/bi';
 import './CardDetails.css';
@@ -12,15 +12,18 @@ export default function CardDetails() {
   const { cardId } = useParams();
   const [card, setCard] = useState();
   const [quantityToAdd, setQuantityToAdd] = useState(1);
+  const [newPrice, setNewPrice] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState();
-  const { addToCart, cartInventory } = useContext(ShopContext);
+  const { addToCart, cartInventory, user } = useContext(ShopContext);
 
   useEffect(() => {
     async function loadProduct(cardId) {
       try {
         const card = await fetchCard(cardId);
         setCard(card);
+        user && user.isAdmin ? setQuantityToAdd(card.quantity) : setQuantityToAdd(1);
+        setNewPrice(card.price);
       } catch (err) {
         setError(err);
       } finally {
@@ -29,12 +32,19 @@ export default function CardDetails() {
     }
     setIsLoading(true);
     loadProduct(cardId);
-  }, [cardId]);
+  }, [cardId, user]);
 
   function handleQuantityChange(event) {
     const inputQuantity = parseInt(event.target.value);
     if (!isNaN(inputQuantity)) {
       setQuantityToAdd(inputQuantity);
+    }
+  }
+
+  function handlePriceChange(event) {
+    const inputPrice = parseInt(event.target.value);
+    if (!isNaN(inputPrice)) {
+      setNewPrice(inputPrice);
     }
   }
 
@@ -49,6 +59,16 @@ export default function CardDetails() {
       addToCart(card.inventoryId, quantityToAdd)
     } else {
       handleToast();
+    }
+  }
+
+  async function handleUpdate(event) {
+    event.preventDefault();
+    try {
+      const newCard = await updateInventory(cardId, quantityToAdd, newPrice);
+      setCard(newCard.updatedCard);
+    } catch (err) {
+      setError(err);
     }
   }
 
@@ -108,7 +128,117 @@ export default function CardDetails() {
               <p className="card-text"><strong>Price:</strong> {toDollars(price)}</p>
               <p className="card-text"><strong>Quantity Available:</strong> {visible ? quantity : 'OUT OF STOCK'}</p>
             </div>
-            <form onSubmit={handleSubmit} className="form-inline mb-3 px-3">
+            {user && user.isAdmin ?
+            <form onSubmit={handleUpdate} className="form-inline mb-3 px-3">
+              <label htmlFor="price" className="mr-3">
+                Price:
+              </label>
+              <div className="input-group pb-4">
+                <div className="input-group-prepend">
+                  <button
+                    className="btn btn-outline-danger p-0"
+                    type="button"
+                    id="button-addon3"
+                    onClick={() => {
+                      const inputEl = document.getElementById('price');
+                      const currentVal = parseInt(inputEl.value);
+                      if (currentVal - 1 !== -1) {
+                        inputEl.value = currentVal - 1;
+                        setNewPrice(inputEl.valueAsNumber);
+                      }
+                    }}
+                  >
+                    <AiOutlineMinusSquare size={40} />
+                  </button>
+                </div>
+                <input
+                  type="number"
+                  id="price"
+                  name="price"
+                  value={newPrice}
+                  required
+                  min={0}
+                  onChange={handlePriceChange}
+                  onFocus={event => event.target.select()}
+                  className="form-control text-center"
+                />
+                <div className="input-group-append">
+                  <button
+                    className="btn btn-outline-success p-0"
+                    type="button"
+                    id="button-addon4"
+                    onClick={() => {
+                      const inputEl = document.getElementById('price');
+                      const currentVal = parseInt(inputEl.value);
+                      if (currentVal < 1e8) {
+                        inputEl.value = currentVal + 1;
+                        setNewPrice(inputEl.valueAsNumber);
+                      }
+                    }}
+                  >
+                    <AiOutlinePlusSquare size={40} />
+                  </button>
+                </div>
+              </div>
+              <label htmlFor="quantity" className="mr-3">
+                Quantity:
+              </label>
+              <div className="input-group pb-4">
+                <div className="input-group-prepend">
+                  <button
+                    className="btn btn-outline-danger p-0"
+                    type="button"
+                    id="button-addon1"
+                    onClick={() => {
+                      const inputEl = document.getElementById('quantity');
+                      const currentVal = parseInt(inputEl.value);
+                      if (currentVal - 1 !== -1) {
+                        inputEl.value = currentVal - 1;
+                        setQuantityToAdd(inputEl.valueAsNumber);
+                      }
+                    }}
+                  >
+                    <AiOutlineMinusSquare size={40} />
+                  </button>
+                </div>
+                <input
+                  type="number"
+                  id="quantity"
+                  name="quantity"
+                  value={quantityToAdd}
+                  required
+                  min={0}
+                  max={200}
+                  onChange={handleQuantityChange}
+                  onFocus={event => event.target.select()}
+                  className="form-control text-center"
+                />
+                <div className="input-group-append">
+                  <button
+                    className="btn btn-outline-success p-0"
+                    type="button"
+                    id="button-addon2"
+                    onClick={() => {
+                      const inputEl = document.getElementById('quantity');
+                      const currentVal = parseInt(inputEl.value);
+                      if (currentVal < 200) {
+                        inputEl.value = currentVal + 1;
+                        setQuantityToAdd(inputEl.valueAsNumber);
+                      }
+                    }}
+                  >
+                    <AiOutlinePlusSquare size={40} />
+                  </button>
+                </div>
+              </div>
+              <div className="d-flex justify-content-between align-items-center">
+                <button type="submit" className="btn btn-primary" id="liveToastBtn">
+                  Update Price & Quantity
+                </button>
+                <Link to="/"><button className="btn btn-link">Back to Catalog</button></Link>
+              </div>
+            </form>
+          :(<form onSubmit={handleSubmit} className="form-inline mb-3 px-3">
               <label htmlFor="quantity" className="mr-3">
                 Quantity:
               </label>
@@ -166,7 +296,7 @@ export default function CardDetails() {
                 </button>
                 <Link to="/"><button className="btn btn-link">Back to Catalog</button></Link>
               </div>
-            </form>
+            </form>)}
           </div>
         </div>
       </div>
@@ -179,7 +309,7 @@ export default function CardDetails() {
               <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
           </div>
           <div className="toast-body">
-            Not enough in stock!
+            {user && user.isAdmin ? 'Quantity must be non-negative integer!' :'Not enough in stock!'}
           </div>
         </div>
       </div>
