@@ -5,6 +5,7 @@ import { fetchCatalog, toDollars, handleToast } from '../lib';
 import CartItem from "../components/CartItem.js";
 import { ShopContext } from "../components/ShopContext";
 import ToggleLamberto from "../components/ToggleLamberto"
+import './Cart.css'
 
 export default function Cart() {
   const [inventory, setInventory] = useState([]);
@@ -89,38 +90,40 @@ export default function Cart() {
                   <CartItem key={item.inventoryId} card={item} cartQuantity={handleQuantity(item)} />
                 ))}
               </div>
-              <div className="col-md-4 pt-md-4 card border-0">
-                <h4 className="text-center mb-4 card-header border">Cart Summary</h4>
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Subtotal:</span>
-                  <span>{toDollars(subtotal)}</span>
-                </div>
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Tax ({7.75}%):</span>
-                  <span>{toDollars(subtotal * 0.0775)}</span>
-                </div>
-                <hr />
-                <div className="d-flex justify-content-between mb-4">
-                  <span>Total:</span>
-                  <span>{toDollars(subtotal + (subtotal * 0.0775))}</span>
-                </div>
-                <div className="d-grid gap-2 pb-4">
-                  {user && subtotal >= 50 &&
-                    <form action={`/create-checkout-session/${user.userId}`} method="POST">
-                      <button type="submit" className="btn btn-primary w-100">
+              <div className="col-md-4 pt-md-4">
+                <div className="row card mx-4" id="cart-summary">
+                  <h4 className="text-center mb-4 card-header border">Cart Summary</h4>
+                  <div className="d-flex justify-content-between mb-2">
+                    <span>Subtotal:</span>
+                    <span>{toDollars(subtotal)}</span>
+                  </div>
+                  <div className="d-flex justify-content-between mb-2">
+                    <span>Tax ({7.75}%):</span>
+                    <span>{toDollars(subtotal * 0.0775)}</span>
+                  </div>
+                  <hr />
+                  <div className="d-flex justify-content-between mb-4">
+                    <span>Total:</span>
+                    <span>{toDollars(subtotal + (subtotal * 0.0775))}</span>
+                  </div>
+                  <div className="d-grid gap-2 pb-4">
+                    {user && subtotal >= 50 &&
+                      <form action={`/create-checkout-session/${user.userId}`} method="POST">
+                        <button type="submit" className="btn btn-primary w-100">
+                          Checkout
+                        </button>
+                      </form>}
+                    {!user &&
+                      <button type="button" className="btn btn-primary" onClick={() => navigate('/sign-in')}>
+                        Sign in to checkout!
+                      </button>}
+                    {user && subtotal < 50 &&
+                      <button type="button" className="btn btn-primary" id="liveToastBtn" onClick={handleClick}>
                         Checkout
-                      </button>
-                    </form>}
-                  {!user &&
-                    <button type="button" className="btn btn-primary" onClick={() => navigate('/sign-in')}>
-                      Sign in to checkout!
-                    </button>}
-                  {user && subtotal < 50 &&
-                    <button type="button" className="btn btn-primary" id="liveToastBtn" onClick={handleClick}>
-                      Checkout
-                    </button>}
-                  <button type="button" className="btn btn-danger" onClick={clearCart}>Clear cart</button>
-                  <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>Continue Shopping</button>
+                      </button>}
+                    <button type="button" className="btn btn-danger" onClick={clearCart}>Clear cart</button>
+                    <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>Continue Shopping</button>
+                  </div>
                 </div>
               </div>
             </div>
