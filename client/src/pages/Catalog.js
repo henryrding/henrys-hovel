@@ -1,14 +1,16 @@
-import { useEffect, useState, useCallback, Fragment } from 'react';
+import { useEffect, useState, useCallback, useContext, Fragment } from 'react';
 import { fetchCatalog } from '../lib';
 import Card from "../components/Card";
 import Search from "../components/Search";
 import ToggleLamberto from '../components/ToggleLamberto';
+import { ShopContext } from '../components/ShopContext';
 
 export default function Catalog() {
   const [inventory, setInventory] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState();
   const [searchResults, setsearchResults] = useState([]);
+  const { user } = useContext(ShopContext);
 
   useEffect(() => {
     async function loadCatalog() {
@@ -52,11 +54,23 @@ export default function Catalog() {
     <div className="container">
       <Search inventory={inventory} handleSearch={handleSearch} />
       <div className="row row-cols-2 row-cols-md-4 row-cols-lg-6 mb-4">
-        {searchResults.map((card) => (
-          <Fragment key={card.inventoryId}>
-            <Card card={card} />
-          </Fragment>
-        ))}
+        {searchResults.map((card) => {
+          if (user?.isAdmin) {
+            return (
+              <Fragment key={card.inventoryId}>
+                <Card card={card} />
+              </Fragment>
+            );
+          } else if (card.visible) {
+            return (
+              <Fragment key={card.inventoryId}>
+                <Card card={card} />
+              </Fragment>
+            );
+          } else {
+            return null;
+          }
+        })}
       </div>
     </div>
   );

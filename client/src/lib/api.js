@@ -143,7 +143,7 @@ export async function fetchOrderItems() {
   return await res.json();
 }
 
-export async function updateInventory(cardId, quantity, price) {
+export async function updateInventory(cardId, quantity, price, visible) {
   const token = localStorage.getItem('tokenKey');
   if (!token) {
     throw new Error('Token not found');
@@ -154,7 +154,7 @@ export async function updateInventory(cardId, quantity, price) {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify({ quantity, price }),
+    body: JSON.stringify({ quantity, price, visible }),
   };
   const res = await fetch(`/api/inventory/${cardId}`, req);
   if (!res.ok) {

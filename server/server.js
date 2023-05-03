@@ -261,8 +261,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
       await db.query(sql2, params2);
       const sql3 = `
       update "inventory"
-         set "quantity" = "inventory"."quantity" - "cartInventory"."quantity",
-             "visible" = CASE WHEN "inventory"."quantity" - "cartInventory"."quantity" <= 0 THEN false ELSE "inventory"."visible" END
+         set "quantity" = "inventory"."quantity" - "cartInventory"."quantity"
         from "cartInventory"
        where "cartInventory"."inventoryId" = "inventory"."inventoryId"
          and "cartInventory"."cartId" IN (
@@ -477,28 +476,31 @@ app.patch('/api/inventory/:cardId', async (req, res, next) => {
     if (!myRegex.test(cardId.toString())) {
       throw new ClientError(400, 'cardId must be a valid Id');
     }
-    const { quantity, price } = req.body;
-    if (quantity === undefined || price === undefined) {
-      throw new ClientError(400, 'quantity and price are required fields');
+    const { quantity, price, visible } = req.body;
+    if (quantity === undefined || price === undefined || visible === undefined) {
+      throw new ClientError(400, 'quantity, price, and visible are required fields');
     }
     if (!Number.isInteger(quantity) || quantity < 0 || !Number.isInteger(price) || price < 0) {
       throw new ClientError(400, 'quantity and price must be non-negative integers');
+    }
+    if (typeof visible !== 'boolean') {
+      throw new ClientError(400, 'visible must be true of false');
     }
     const sql = `
       update "inventory"
          set "quantity" = $1,
              "price" = $2,
-             "visible" = CASE WHEN $1 = 0 THEN false ELSE true END
-       where "cardId" = $3
+             "visible" = $3
+       where "cardId" = $4
       returning *;
     `;
-    const params = [quantity, price, cardId];
+    const params = [quantity, price, visible, cardId];
     const result = await db.query(sql, params);
     const updatedCard = result.rows[0];
     if (!updatedCard) {
       throw new ClientError(404, `cannot find inventory item with cardId ${cardId}`);
     }
-    if (updatedCard.quantity === 0) {
+    if (updatedCard.quantity === 0 || !updatedCard.visible) {
       const sql2 = `
         delete from "cartInventory"
           where "inventoryId" = $1

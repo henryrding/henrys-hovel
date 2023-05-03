@@ -3,9 +3,10 @@ import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { ShopContext } from '../components/ShopContext';
 import ToggleLamberto from '../components/ToggleLamberto';
+import NotFound from './NotFound';
 import { fetchCard, updateInventory, toDollars, createLineBreaks, handleToast } from '../lib';
 import { AiOutlinePlusSquare, AiOutlineMinusSquare } from 'react-icons/ai';
-import { BiErrorCircle } from 'react-icons/bi';
+import { BiCheckCircle, BiErrorCircle } from 'react-icons/bi';
 import './CardDetails.css';
 
 export default function CardDetails() {
@@ -13,6 +14,7 @@ export default function CardDetails() {
   const [card, setCard] = useState();
   const [quantityToAdd, setQuantityToAdd] = useState(1);
   const [newPrice, setNewPrice] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState();
   const { addToCart, cartInventory, user } = useContext(ShopContext);
@@ -22,8 +24,9 @@ export default function CardDetails() {
       try {
         const card = await fetchCard(cardId);
         setCard(card);
-        user && user.isAdmin ? setQuantityToAdd(card.quantity) : setQuantityToAdd(1);
+        user?.isAdmin ? setQuantityToAdd(card.quantity) : setQuantityToAdd(1);
         setNewPrice(card.price);
+        setIsVisible(card.visible);
       } catch (err) {
         setError(err);
       } finally {
@@ -48,6 +51,11 @@ export default function CardDetails() {
     }
   }
 
+  function handleVisibleChange(event) {
+    const inputVisible = event.target.value === "true" ? true : false;
+    setIsVisible(!inputVisible);
+  }
+
   function findCartCard(cartItems, item) {
     return cartItems.find(cartItem => cartItem.inventoryId === item.inventoryId)
   };
@@ -65,8 +73,9 @@ export default function CardDetails() {
   async function handleUpdate(event) {
     event.preventDefault();
     try {
-      const newCard = await updateInventory(cardId, quantityToAdd, newPrice);
+      const newCard = await updateInventory(cardId, quantityToAdd, newPrice, isVisible);
       setCard(newCard.updatedCard);
+      handleToast();
     } catch (err) {
       setError(err);
     }
@@ -97,13 +106,19 @@ export default function CardDetails() {
   const cardInCart = findCartCard(cartInventory, card);
   const cartItemAmount = cardInCart !== undefined && cardInCart.quantity;
 
+  if (!visible && !user?.isAdmin) {
+    return (
+      <NotFound />
+    )
+  }
+
   return (
     <div className="container">
       <div className="row">
         <div className="col-md-6 p-4">
           <div className='position-relative d-inline-block'>
             <img src={`https://c1.scryfall.com/file/scryfall-cards/normal${image}`} alt="Card Name" className="img-fluid max-wd-lg-40" />
-            {!visible && <div className="card-img-overlay d-flex justify-content-center align-items-center position-absolute" style={{backgroundColor: 'gray', opacity: 0.5, borderRadius: "3.5%"}}>
+            {quantity === 0 && <div className="card-img-overlay d-flex justify-content-center align-items-center position-absolute" style={{backgroundColor: 'gray', opacity: 0.5, borderRadius: "3.5%"}}>
               <h1 className="card-title">OUT OF STOCK</h1>
             </div>}
           </div>
@@ -126,9 +141,9 @@ export default function CardDetails() {
               <p className="card-text"><strong>Collector Number:</strong> {collectorNumber}</p>
               <p className="card-text"><strong>Finish:</strong> {foil ? 'foil' : 'nonfoil'}</p>
               <p className="card-text"><strong>Price:</strong> {toDollars(price)}</p>
-              <p className="card-text"><strong>Quantity Available:</strong> {visible ? quantity : 'OUT OF STOCK'}</p>
+              <p className="card-text"><strong>Quantity Available:</strong> {quantity === 0 ? 'OUT OF STOCK' : quantity}</p>
             </div>
-            {user && user.isAdmin ?
+            {user?.isAdmin ?
             <form onSubmit={handleUpdate} className="form-inline mb-3 px-3">
               <label htmlFor="price" className="mr-3">
                 Price:
@@ -231,9 +246,22 @@ export default function CardDetails() {
                   </button>
                 </div>
               </div>
+                <div className="form-check form-switch pb-4">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="available"
+                    checked={isVisible}
+                    value={isVisible}
+                    onChange={handleVisibleChange}
+                  />
+                  <label className="form-check-label" htmlFor="available">
+                    Visible
+                  </label>
+                </div>
               <div className="d-flex justify-content-between align-items-center">
                 <button type="submit" className="btn btn-primary" id="liveToastBtn">
-                  Update Price & Quantity
+                  Update Card Qualities
                 </button>
                 <Link to="/"><button className="btn btn-link">Back to Catalog</button></Link>
               </div>
@@ -303,13 +331,13 @@ export default function CardDetails() {
       <div className="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="liveToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
           <div className="toast-header">
-            <BiErrorCircle color='red' className="rounded me-2" />
+            {user?.isAdmin ? <BiCheckCircle color='green' className="rounded me-2" /> : <BiErrorCircle color='red' className="rounded me-2" />}
               <strong className="me-auto">Henry's Hovel</strong>
               <small>Just now</small>
               <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
           </div>
           <div className="toast-body">
-            {user && user.isAdmin ? 'Quantity must be non-negative integer!' :'Not enough in stock!'}
+            {user?.isAdmin ? 'Updated!' :'Not enough in stock!'}
           </div>
         </div>
       </div>
