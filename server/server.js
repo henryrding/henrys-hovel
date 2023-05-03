@@ -500,7 +500,7 @@ app.patch('/api/inventory/:cardId', async (req, res, next) => {
     if (!updatedCard) {
       throw new ClientError(404, `cannot find inventory item with cardId ${cardId}`);
     }
-    if (updatedCard.quantity === 0) {
+    if (updatedCard.quantity === 0 || !updatedCard.visible) {
       const sql2 = `
         delete from "cartInventory"
           where "inventoryId" = $1
