@@ -6,7 +6,7 @@ import ToggleLamberto from '../components/ToggleLamberto';
 import NotFound from './NotFound';
 import { fetchCard, updateInventory, toDollars, createLineBreaks, handleToast } from '../lib';
 import { AiOutlinePlusSquare, AiOutlineMinusSquare } from 'react-icons/ai';
-import { BiErrorCircle } from 'react-icons/bi';
+import { BiCheckCircle, BiErrorCircle } from 'react-icons/bi';
 import './CardDetails.css';
 
 export default function CardDetails() {
@@ -75,6 +75,7 @@ export default function CardDetails() {
     try {
       const newCard = await updateInventory(cardId, quantityToAdd, newPrice, isVisible);
       setCard(newCard.updatedCard);
+      handleToast();
     } catch (err) {
       setError(err);
     }
@@ -330,13 +331,13 @@ export default function CardDetails() {
       <div className="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="liveToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
           <div className="toast-header">
-            <BiErrorCircle color='red' className="rounded me-2" />
+            {user?.isAdmin ? <BiCheckCircle color='green' className="rounded me-2" /> : <BiErrorCircle color='red' className="rounded me-2" />}
               <strong className="me-auto">Henry's Hovel</strong>
               <small>Just now</small>
               <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
           </div>
           <div className="toast-body">
-            {user?.isAdmin ? 'Quantity must be non-negative integer!' :'Not enough in stock!'}
+            {user?.isAdmin ? 'Updated!' :'Not enough in stock!'}
           </div>
         </div>
       </div>
