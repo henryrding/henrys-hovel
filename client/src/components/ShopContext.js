@@ -21,14 +21,15 @@ export const ShopContextProvider = (props) => {
 
   useEffect(() => {
     async function getCartData() {
-      if (user) {
+      if (user && !user.isAdmin) {
         try {
           const data = await fetchCartInventory();
           setCartInventory(data);
         } catch (err) {
           console.error(err);
         }
-      } else {
+      }
+      if (!user) {
         const cartData = JSON.parse(localStorage.getItem('cart'));
         if (cartData && cartData.length > 0) {
           setCartInventory(cartData);
@@ -65,21 +66,25 @@ export const ShopContextProvider = (props) => {
     localStorage.setItem('tokenKey', token);
     setUser(user);
     const cartData = JSON.parse(localStorage.getItem('cart'));
-    try {
-      if (cartData.length === 0) {
-        const oldInventory = await fetchCartInventory();
-        setCartInventory(oldInventory);
-      } else {
-        await clearCartInventory();
-        for (const { inventoryId, quantity } of cartData) {
-          await addCartInventory(inventoryId, quantity);
+    if (!user.isAdmin) {
+      try {
+        if (cartData.length === 0) {
+          const oldInventory = await fetchCartInventory();
+          setCartInventory(oldInventory);
+        } else {
+          await clearCartInventory();
+          for (const { inventoryId, quantity } of cartData) {
+            await addCartInventory(inventoryId, quantity);
+          }
+          const newInventory = await fetchCartInventory();
+          setCartInventory(newInventory);
+          localStorage.removeItem('cart');
         }
-        const newInventory = await fetchCartInventory();
-        setCartInventory(newInventory);
-        localStorage.removeItem('cart');
+      } catch (err) {
+        console.error(err.message)
       }
-    } catch (err) {
-      console.error(err.message)
+    } else {
+      localStorage.removeItem('cart');
     }
   }, []);
 
