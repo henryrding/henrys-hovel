@@ -29,7 +29,7 @@ export default function Catalog() {
 
   const handleSearch = useCallback((results) => {
     setsearchResults(results);
-  }, [])
+  }, []);
 
   if (isLoading) return (
     <div className="d-flex justify-content-center align-items-center vh-100">
