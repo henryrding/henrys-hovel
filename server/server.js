@@ -42,19 +42,24 @@ app.get('/api/inventory', async (req, res, next) => {
   }
 });
 
-app.get('/api/inventory/:cardId', async (req, res, next) => {
+app.get('/api/inventory/:cardId/:finish', async (req, res, next) => {
   try {
     const cardId = req.params.cardId;
     const myRegex = /^[a-z0-9-]+$/;
     if (!myRegex.test(cardId.toString())) {
       throw new ClientError(400, 'cardId must be a valid Id');
     }
+    const finish = req.params.finish;
+    const finishes = ['foil', 'nonfoil', 'etched'];
+    if (!finishes.includes(finish)) {
+      throw new ClientError(400, 'finish must be foil, nonfoil, or etched');
+    }
     const sql = `
       select *
         from "inventory"
-       where "cardId" = $1;
+       where "cardId" = $1 and "finish" = $2;
     `;
-    const params = [cardId];
+    const params = [cardId, finish];
     const result = await db.query(sql, params);
     if (!result.rows[0]) {
       throw new ClientError(404, `cannot find inventory item with cardId ${cardId}`);
@@ -229,7 +234,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
       const [order] = result.rows;
       const orderId = order.orderId;
       const sql2 = `
-      insert into "orderItems" ("inventoryId", "orderId", "name", "collectorNumber", "setName", "setCode", "rarity", "foil", "price", "quantity", "cardId", "image", "manaCost", "typeLine", "oracleText", "power", "toughness", "flavorText", "artist", "visible" )
+      insert into "orderItems" ("inventoryId", "orderId", "name", "collectorNumber", "setName", "setCode", "rarity", "finish", "price", "quantity", "cardId", "image", "manaCost", "typeLine", "oracleText", "power", "toughness", "flavorText", "artist", "visible" )
       select "ci"."inventoryId",
              "orders"."orderId",
              "i"."name",
@@ -237,7 +242,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
              "i"."setName",
              "i"."setCode",
              "i"."rarity",
-             "i"."foil",
+             "i"."finish",
              "i"."price",
              "ci"."quantity",
              "i"."cardId",

@@ -1,17 +1,34 @@
 import { useState, useEffect } from 'react';
 import { CiSearch } from 'react-icons/ci';
 import './Search.css';
+import { fetchApiResponse } from '../lib';
 
 export default function Search({ inventory, handleSearch }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredInventory, setFilteredInventory] = useState([inventory]);
+  const [filteredInventory, setFilteredInventory] = useState([]);
+  const [error, setError] = useState();
 
   useEffect(() => {
-    const filteredResults = inventory.filter((product) =>
-      product.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredInventory(filteredResults);
-    handleSearch(filteredResults);
+    const timerId = setTimeout(() => {
+      async function getResults() {
+        try {
+          const filteredResults = inventory ? inventory.filter((product) =>
+            product.name.toLowerCase().includes(searchQuery.toLowerCase())
+          ) : (
+            await fetchApiResponse(searchQuery)
+          );
+          console.log(filteredResults?.data);
+          setError();
+          setFilteredInventory(inventory ? filteredResults : filteredResults.data);
+          handleSearch(inventory ? filteredResults : filteredResults.data);
+        } catch (err) {
+          setError(err);
+        }
+      }
+      getResults();
+    }, 500);
+
+    return () => clearTimeout(timerId);
   }, [inventory, searchQuery, handleSearch]);
 
   function handleSearchInput(event) {
@@ -37,6 +54,11 @@ export default function Search({ inventory, handleSearch }) {
         <div className="alert alert-info text-center mt-4" role="alert">
           No results found
         </div>)}
+      {error && (
+        <div className="alert alert-info text-center mt-4" role="alert">
+          {error.message}
+        </div>
+      )}
     </>
   );
 }

@@ -4,8 +4,8 @@ import { BiErrorCircle } from 'react-icons/bi';
 import { fetchCatalog, toDollars, handleToast } from '../lib';
 import CartItem from "../components/CartItem.js";
 import { ShopContext } from "../components/ShopContext";
-import ToggleLamberto from "../components/ToggleLamberto"
-import './Cart.css'
+import ToggleLamberto from "../components/ToggleLamberto";
+import './Cart.css';
 
 export default function Cart() {
   const [inventory, setInventory] = useState([]);

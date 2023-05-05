@@ -4,8 +4,8 @@ export async function fetchCatalog() {
   return await res.json();
 }
 
-export async function fetchCard(cardId) {
-  const res = await fetch(`/api/inventory/${cardId}`);
+export async function fetchCard(cardId, type) {
+  const res = await fetch(`/api/inventory/${cardId}/${type}`);
   if (!res.ok) throw new Error(`fetch Error ${res.status}`);
   return await res.json();
 }
@@ -160,6 +160,15 @@ export async function updateInventory(cardId, quantity, price, visible) {
   if (!res.ok) {
     const message = await res.text(res.body);
     throw new Error(`${message.substring(10, message.length - 2)}`);
+  }
+  return await res.json();
+}
+
+export async function fetchApiResponse(query) {
+  const res = await fetch(`https://api.scryfall.com/cards/search?q=${query}+unique%3Aprints+%28game%3Apaper%29`);
+  if (!res.ok) {
+    const message = await res.text(res.body);
+    throw new Error(`${message.substring(77, message.length - 96)}`);
   }
   return await res.json();
 }

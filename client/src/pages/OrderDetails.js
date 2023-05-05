@@ -55,7 +55,7 @@ export default function OrderDetails(props) {
               {order.items.map((item) => (
                 <tr key={item.cardId}>
                   <td>
-                    <span className="d-block">{`${item.name}${item.foil ? ' (foil)' : ''}`}</span>
+                    <span className="d-block">{`${item.name}${item.finish !== 'nonfoil' ? ` (${item.finish})` : ''}`}</span>
                     <span className="d-block text-muted small">{`(${item.setCode.toUpperCase()}) #${item.collectorNumber}`}</span>
                   </td>
                   <td>{item.quantity}</td>

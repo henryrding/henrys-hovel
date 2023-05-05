@@ -10,7 +10,7 @@ import { BiCheckCircle, BiErrorCircle } from 'react-icons/bi';
 import './CardDetails.css';
 
 export default function CardDetails() {
-  const { cardId } = useParams();
+  const { cardId, type } = useParams();
   const [card, setCard] = useState();
   const [quantityToAdd, setQuantityToAdd] = useState(1);
   const [newPrice, setNewPrice] = useState(0);
@@ -22,7 +22,7 @@ export default function CardDetails() {
   useEffect(() => {
     async function loadProduct(cardId) {
       try {
-        const card = await fetchCard(cardId);
+        const card = await fetchCard(cardId, type);
         setCard(card);
         user?.isAdmin ? setQuantityToAdd(card.quantity) : setQuantityToAdd(1);
         setNewPrice(card.price);
@@ -35,7 +35,7 @@ export default function CardDetails() {
     }
     setIsLoading(true);
     loadProduct(cardId);
-  }, [cardId, user]);
+  }, [cardId, type, user]);
 
   function handleQuantityChange(event) {
     const inputQuantity = parseInt(event.target.value);
@@ -101,7 +101,7 @@ export default function CardDetails() {
     );
   }
   if (!card) return null;
-  const { name, collectorNumber, setName, setCode, rarity, foil, price, quantity, image, manaCost, typeLine, power, toughness, flavorText, artist, oracleText, visible } = card;
+  const { name, collectorNumber, setName, setCode, rarity, finish, price, quantity, image, manaCost, typeLine, power, toughness, flavorText, artist, oracleText, visible } = card;
 
   const cardInCart = findCartCard(cartInventory, card);
   const cartItemAmount = cardInCart !== undefined && cardInCart.quantity;
@@ -128,7 +128,7 @@ export default function CardDetails() {
             <div className="card-header d-flex align-items-center">
               <h3 className="card-title d-inline m-0">{name}</h3>
               <span className="mx-2 d-inline"></span>
-              <h5 className="card-subtitle text-muted d-inline m-0">{manaCost}</h5>
+              <h5 className="card-subtitle text-muted d-inline m-0 text-nowrap">{manaCost}</h5>
             </div>
             <div className="card-body">
               <p className="card-text"><strong>Type:</strong> {typeLine}</p>
@@ -139,7 +139,7 @@ export default function CardDetails() {
               <p className="card-text"><strong>Power/Toughness:</strong> {power}/{toughness}</p>
               <p className="card-text"><strong>Artist:</strong> {artist}</p>
               <p className="card-text"><strong>Collector Number:</strong> {collectorNumber}</p>
-              <p className="card-text"><strong>Finish:</strong> {foil ? 'foil' : 'nonfoil'}</p>
+              <p className="card-text"><strong>Finish:</strong> {finish}</p>
               <p className="card-text"><strong>Price:</strong> {toDollars(price)}</p>
               <p className="card-text"><strong>Quantity Available:</strong> {quantity === 0 ? 'OUT OF STOCK' : quantity}</p>
             </div>
@@ -337,7 +337,7 @@ export default function CardDetails() {
               <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
           </div>
           <div className="toast-body">
-            {user?.isAdmin ? 'Updated!' :'Not enough in stock!'}
+            {user?.isAdmin ? (card.finishes ? 'Added to Inventory!' : 'Updated!') :'Not enough in stock!'}
           </div>
         </div>
       </div>
