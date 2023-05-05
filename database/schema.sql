@@ -13,10 +13,10 @@ CREATE TABLE "public"."inventory" (
 	"setName" TEXT NOT NULL,
   "setCode" TEXT NOT NULL,
 	"rarity" TEXT NOT NULL,
-	"foil" BOOLEAN NOT NULL,
+	"finish" TEXT NOT NULL,
 	"price" integer NOT NULL,
 	"quantity" integer NOT NULL,
-	"cardId" TEXT NOT NULL UNIQUE,
+	"cardId" TEXT NOT NULL,
 	"image" TEXT NOT NULL,
 	"manaCost" TEXT NOT NULL,
 	"typeLine" TEXT NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE "public"."orderItems" (
 	"setName" TEXT NOT NULL,
   "setCode" TEXT NOT NULL,
 	"rarity" TEXT NOT NULL,
-	"foil" BOOLEAN NOT NULL,
+	"finish" TEXT NOT NULL,
 	"price" integer NOT NULL,
 	"quantity" integer NOT NULL,
 	"cardId" TEXT NOT NULL,
@@ -107,6 +107,8 @@ CREATE TABLE "public"."orderItems" (
 ) WITH (
   OIDS=FALSE
 );
+
+ALTER TABLE "inventory" ADD CONSTRAINT "inventory_card_finish_unique" UNIQUE ("cardId", "finish");
 
 ALTER TABLE "carts" ADD CONSTRAINT "carts_fk0" FOREIGN KEY ("userId") REFERENCES "users"("userId");
 
