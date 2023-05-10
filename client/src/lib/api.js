@@ -165,10 +165,18 @@ export async function updateInventory(cardId, quantity, price, visible) {
 }
 
 export async function fetchApiResponse(query) {
-  const res = await fetch(`https://api.scryfall.com/cards/search?q=${query}+unique%3Aprints+%28game%3Apaper%29`);
+  const res = await fetch(`https://api.scryfall.com/cards/search?q="${query}"+unique%3Aprints+%28game%3Apaper%29&order=released`);
   if (!res.ok) {
     const message = await res.text(res.body);
     throw new Error(`${message.substring(77, message.length - 96)}`);
   }
-  return await res.json();
+  const data = await res.json();
+  return data.data.slice(0, 168);
+}
+
+export async function addToInventory(card, cost, quantityToAdd, cardFinish) {
+  console.log(card);
+  console.log(cost);
+  console.log(quantityToAdd);
+  console.log(cardFinish);
 }
