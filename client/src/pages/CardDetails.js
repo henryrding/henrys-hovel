@@ -20,7 +20,7 @@ export default function CardDetails() {
   const { addToCart, cartInventory, user } = useContext(ShopContext);
 
   useEffect(() => {
-    async function loadProduct(cardId) {
+    async function loadProduct(cardId, type) {
       try {
         const card = await fetchCard(cardId, type);
         setCard(card);
@@ -34,7 +34,7 @@ export default function CardDetails() {
       }
     }
     setIsLoading(true);
-    loadProduct(cardId);
+    loadProduct(cardId, type);
   }, [cardId, type, user]);
 
   function handleQuantityChange(event) {
@@ -52,7 +52,7 @@ export default function CardDetails() {
   }
 
   function handleVisibleChange(event) {
-    const inputVisible = event.target.value === "true" ? true : false;
+    const inputVisible = event.target.value === "true";
     setIsVisible(!inputVisible);
   }
 
@@ -117,7 +117,7 @@ export default function CardDetails() {
       <div className="row">
         <div className="col-md-6 p-4">
           <div className='position-relative d-inline-block'>
-            <img src={`https://c1.scryfall.com/file/scryfall-cards/normal${image}`} alt="Card Name" className="img-fluid max-wd-lg-40" />
+            <img src={`https://c1.scryfall.com/file/scryfall-cards/normal${image}`} alt={name} className="img-fluid max-wd-lg-40" />
             {quantity === 0 && <div className="card-img-overlay d-flex justify-content-center align-items-center position-absolute" style={{backgroundColor: 'gray', opacity: 0.5, borderRadius: "3.5%"}}>
               <h1 className="card-title">OUT OF STOCK</h1>
             </div>}
