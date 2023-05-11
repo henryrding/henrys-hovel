@@ -43,6 +43,7 @@ export default function Search({ inventory, handleSearch }) {
         </span>
         <input
           className="form-control"
+          name="search"
           type="text"
           placeholder="Search"
           value={searchQuery}

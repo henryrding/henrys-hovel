@@ -178,7 +178,7 @@ export default function Card({ card }) {
                   <>
                     <label htmlFor="card-finish" className="mr-3">Finish:</label>
                     <div className="input-group pb-4">
-                      <select id="finish-select" className="form-select text-center" onChange={handleCardFinishChange}>
+                      <select id="card-finish" className="form-select text-center" onChange={handleCardFinishChange}>
                         {finishes.split(', ').map((option) => (
                           <option key={option} value={option}>
                             {option}
