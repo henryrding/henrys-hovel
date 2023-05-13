@@ -1,15 +1,35 @@
-import { useState, useContext } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { addToInventory ,toDollars } from '../lib';
 import { ShopContext } from "../components/ShopContext";
 import { AiOutlinePlusSquare, AiOutlineMinusSquare } from 'react-icons/ai';
 
 export default function Card({ card }) {
+  const { name, collectorNumber, setName, setCode, rarity, finishes, finish, price, quantity, cardId, image } = card;
   const [quantityToAdd, setQuantityToAdd] = useState(1);
   const [cost, setCost] = useState(0);
-  const [cardFinish, setCardFinish] = useState('nonfoil');
-  const { name, collectorNumber, setName, setCode, rarity, finishes, finish, price, quantity, cardId, image } = card;
+  const [cardFinish, setCardFinish] = useState(finish);
+  const [successMessage, setSuccessMessage] = useState();
+  const [error, setError] = useState();
+  const formRef = useRef(null);
   const { user } = useContext(ShopContext);
+
+  useEffect(() => {
+    const myModalEl = document.getElementById(`exampleModal-${cardId}`);
+    const handleModalHide = () => {
+      setQuantityToAdd(1);
+      setCost(0);
+      setCardFinish(finish);
+      setSuccessMessage();
+      setError();
+      formRef.current.reset();
+    }
+    myModalEl.addEventListener('hidden.bs.modal', handleModalHide);
+    return () => {
+      myModalEl.removeEventListener('hidden.bs.modal', handleModalHide);
+    }
+  }, [cardId, finish]);
+
 
   function handleQuantityToAddChange(event) {
     const inputQuantity = parseInt(event.target.value);
@@ -32,9 +52,13 @@ export default function Card({ card }) {
   async function handleSubmit(event) {
     event.preventDefault();
     try {
+      setSuccessMessage('...');
       await addToInventory(card, quantityToAdd, cost, cardFinish);
+      setError();
+      setSuccessMessage('Successfully added to inventory.');
     } catch (err) {
-      console.error(err.message);
+      setSuccessMessage('');
+      setError(err);
     }
   }
 
@@ -58,10 +82,10 @@ export default function Card({ card }) {
           </>
         ) : (
           <>
-            <div className="d-none d-md-block position-relative">
+            <div className="d-none d-md-block position-relative" role="button">
                 <img src={`https://c1.scryfall.com/file/scryfall-cards/normal${image}`} alt={`${name} #${collectorNumber} ${finish !== 'nonfoil' && `(${finish})`}`} className="card-img-top mt-3" data-bs-toggle="modal" data-bs-target={`#exampleModal-${cardId}`} />
             </div>
-            <div className="d-block d-md-none position-relative">
+              <div className="d-block d-md-none position-relative" role="button">
                 <img src={`https://c1.scryfall.com/file/scryfall-cards/small${image}`} alt={`${name} #${collectorNumber} ${finish !== 'nonfoil' && `(${finish})`}`} className="card-img-top mt-3" data-bs-toggle="modal" data-bs-target={`#exampleModal-${cardId}`} />
             </div>
           </>
@@ -83,7 +107,7 @@ export default function Card({ card }) {
             </div>
             <div className="modal-body">
               <img src={`https://c1.scryfall.com/file/scryfall-cards/small${image}`} alt={`${name} #${collectorNumber}`} className="pb-2 d-block mx-auto" />
-              <form className="form-inline mb-3 px-3" onSubmit={handleSubmit}>
+              <form className="form-inline mb-3 px-3" onSubmit={handleSubmit} ref={formRef}>
                 <label htmlFor="quantity-to-add" className="mr-3">Quantity:</label>
                 <div className="input-group pb-2">
                   <div className="input-group-prepend">
@@ -91,11 +115,8 @@ export default function Card({ card }) {
                       className="btn btn-outline-danger p-0"
                       type="button"
                       onClick={() => {
-                        const inputEl = document.getElementById('quantity-to-add');
-                        const currentVal = parseInt(inputEl.value);
-                        if (currentVal - 1 !== 0) {
-                          inputEl.value = currentVal - 1;
-                          setQuantityToAdd(inputEl.valueAsNumber);
+                        if (quantityToAdd > 1) {
+                          setQuantityToAdd(quantityToAdd - 1);
                         }
                       }}
                     >
@@ -117,11 +138,8 @@ export default function Card({ card }) {
                       className="btn btn-outline-success p-0"
                       type="button"
                       onClick={() => {
-                        const inputEl = document.getElementById('quantity-to-add');
-                        const currentVal = parseInt(inputEl.value);
-                        if (currentVal < 200) {
-                          inputEl.value = currentVal + 1;
-                          setQuantityToAdd(inputEl.valueAsNumber);
+                        if (quantityToAdd < 200) {
+                          setQuantityToAdd(quantityToAdd + 1);
                         }
                       }}
                     >
@@ -136,11 +154,8 @@ export default function Card({ card }) {
                       className="btn btn-outline-danger p-0"
                       type="button"
                       onClick={() => {
-                        const inputEl = document.getElementById('cost');
-                        const currentVal = parseInt(inputEl.value);
-                        if (currentVal - 1 !== -1) {
-                          inputEl.value = currentVal - 1;
-                          setCost(inputEl.valueAsNumber);
+                        if (cost > 0) {
+                          setCost(cost - 1);
                         }
                       }}
                     >
@@ -162,11 +177,8 @@ export default function Card({ card }) {
                       className="btn btn-outline-success p-0"
                       type="button"
                       onClick={() => {
-                        const inputEl = document.getElementById('cost');
-                        const currentVal = parseInt(inputEl.value);
-                        if (currentVal < 1e8) {
-                          inputEl.value = currentVal + 1;
-                          setCost(inputEl.valueAsNumber);
+                        if (cost < 1e8) {
+                          setCost(cost + 1);
                         }
                       }}
                     >
@@ -177,7 +189,7 @@ export default function Card({ card }) {
                 {finishes && (
                   <>
                     <label htmlFor="card-finish" className="mr-3">Finish:</label>
-                    <div className="input-group pb-4">
+                    <div className={`input-group ${!error && !successMessage && "pb-4"}`}>
                       <select id="card-finish" className="form-select text-center" onChange={handleCardFinishChange}>
                         {finishes.split(', ').map((option) => (
                           <option key={option} value={option}>
@@ -188,6 +200,8 @@ export default function Card({ card }) {
                     </div>
                   </>
                 )}
+                {error && !successMessage && <div style={{ color: 'red' }}>Error: {error.message}</div>}
+                {successMessage && !error && <div style={{ color: 'green' }}>{successMessage}</div>}
                 <div className="d-flex justify-content-between align-items-center">
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                   <button type="submit" className="btn btn-primary">Add to Inventory</button>
