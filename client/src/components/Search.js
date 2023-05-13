@@ -17,10 +17,9 @@ export default function Search({ inventory, handleSearch }) {
           ) : (
             await fetchApiResponse(searchQuery)
           );
-          console.log(filteredResults?.data);
           setError();
-          setFilteredInventory(inventory ? filteredResults : filteredResults.data);
-          handleSearch(inventory ? filteredResults : filteredResults.data);
+          setFilteredInventory(filteredResults);
+          handleSearch(filteredResults);
         } catch (err) {
           setError(err);
         }
@@ -44,6 +43,7 @@ export default function Search({ inventory, handleSearch }) {
         </span>
         <input
           className="form-control"
+          name="search"
           type="text"
           placeholder="Search"
           value={searchQuery}
