@@ -526,6 +526,116 @@ app.patch('/api/inventory/:cardId', async (req, res, next) => {
   }
 });
 
+app.post('/api/inventory', async (req, res, next) => {
+  try {
+    const { isAdmin } = req.user;
+    if (!isAdmin) {
+      throw new ClientError(401, 'unauthorized: admin account required');
+    }
+    const {
+      name,
+      collectorNumber,
+      setName,
+      setCode,
+      rarity,
+      finish,
+      price,
+      quantity,
+      cardId,
+      image,
+      manaCost,
+      typeLine,
+      oracleText,
+      power,
+      toughness,
+      flavorText,
+      artist,
+      visible = false
+    } = req.body;
+    if (
+      !name ||
+      !collectorNumber ||
+      !setName ||
+      !setCode ||
+      !rarity ||
+      !finish ||
+      price === undefined ||
+      !quantity ||
+      !cardId ||
+      !image ||
+      manaCost === undefined ||
+      !typeLine ||
+      oracleText === undefined ||
+      !artist
+    ) {
+      throw new ClientError(
+        400,
+        'name, collectorNumber, setName, setCode, rarity, finish, price, quantity, cardId, image, manaCost, typeLine, oracleText, and artist are required fields'
+      );
+    }
+    if (
+      !Number.isInteger(price) ||
+      price < 0 ||
+      !Number.isInteger(quantity) ||
+      quantity < 0
+    ) {
+      throw new ClientError(
+        400,
+        'price and quantity must be non-negative integers'
+      );
+    }
+    const sql = `
+      insert into "inventory" (
+        "name",
+        "collectorNumber",
+        "setName",
+        "setCode",
+        "rarity",
+        "finish",
+        "price",
+        "quantity",
+        "cardId",
+        "image",
+        "manaCost",
+        "typeLine",
+        "oracleText",
+        "power",
+        "toughness",
+        "flavorText",
+        "artist",
+        "visible"
+      ) values (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
+      ) returning *;
+    `;
+    const params = [
+      name,
+      collectorNumber,
+      setName,
+      setCode,
+      rarity,
+      finish,
+      price,
+      quantity,
+      cardId,
+      image,
+      manaCost,
+      typeLine,
+      oracleText,
+      power,
+      toughness,
+      flavorText,
+      artist,
+      visible
+    ];
+    const result = await db.query(sql, params);
+    const addedCard = result.rows[0];
+    res.status(201).json(addedCard);
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.use(errorMiddleware);
 
 app.listen(process.env.PORT, () => {
