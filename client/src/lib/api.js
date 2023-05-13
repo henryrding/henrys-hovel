@@ -174,9 +174,43 @@ export async function fetchApiResponse(query) {
   return data.data.slice(0, 168);
 }
 
-export async function addToInventory(card, cost, quantityToAdd, cardFinish) {
-  console.log(card);
-  console.log(cost);
-  console.log(quantityToAdd);
-  console.log(cardFinish);
+export async function addToInventory(card, quantityToAdd, cost, cardFinish) {
+  const token = localStorage.getItem('tokenKey');
+  if (!token) {
+    throw new Error('Token not found');
+  }
+  const { name, collectorNumber, setName, setCode, rarity, price = cost, quantity = quantityToAdd, cardId, image, manaCost, typeLine, oracleText, power, toughness, flavorText, artist } = card;
+  const body = {
+    name,
+    collectorNumber,
+    setName,
+    setCode,
+    rarity,
+    finish: cardFinish,
+    price,
+    quantity,
+    cardId,
+    image,
+    manaCost,
+    typeLine,
+    oracleText,
+    power,
+    toughness,
+    flavorText,
+    artist
+  };
+  const req = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(body)
+  }
+  const res = await fetch(`/api/inventory`, req);
+  if (!res.ok) {
+    const message = await res.text(res.body);
+    throw new Error(`${message.substring(10, message.length - 2)}`);
+  }
+  return await res.json();
 }
