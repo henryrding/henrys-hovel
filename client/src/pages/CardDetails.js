@@ -155,11 +155,8 @@ export default function CardDetails() {
                     type="button"
                     id="button-addon3"
                     onClick={() => {
-                      const inputEl = document.getElementById('price');
-                      const currentVal = parseInt(inputEl.value);
-                      if (currentVal - 1 !== -1) {
-                        inputEl.value = currentVal - 1;
-                        setNewPrice(inputEl.valueAsNumber);
+                      if (newPrice > 0) {
+                        setNewPrice(newPrice - 1);
                       }
                     }}
                   >
@@ -183,11 +180,8 @@ export default function CardDetails() {
                     type="button"
                     id="button-addon4"
                     onClick={() => {
-                      const inputEl = document.getElementById('price');
-                      const currentVal = parseInt(inputEl.value);
-                      if (currentVal < 1e8) {
-                        inputEl.value = currentVal + 1;
-                        setNewPrice(inputEl.valueAsNumber);
+                      if (newPrice < 1e8) {
+                        setNewPrice(newPrice + 1);
                       }
                     }}
                   >
@@ -205,11 +199,8 @@ export default function CardDetails() {
                     type="button"
                     id="button-addon1"
                     onClick={() => {
-                      const inputEl = document.getElementById('quantity');
-                      const currentVal = parseInt(inputEl.value);
-                      if (currentVal - 1 !== -1) {
-                        inputEl.value = currentVal - 1;
-                        setQuantityToAdd(inputEl.valueAsNumber);
+                      if (quantityToAdd > 0) {
+                        setQuantityToAdd(quantityToAdd - 1);
                       }
                     }}
                   >
@@ -234,11 +225,8 @@ export default function CardDetails() {
                     type="button"
                     id="button-addon2"
                     onClick={() => {
-                      const inputEl = document.getElementById('quantity');
-                      const currentVal = parseInt(inputEl.value);
-                      if (currentVal < 200) {
-                        inputEl.value = currentVal + 1;
-                        setQuantityToAdd(inputEl.valueAsNumber);
+                      if (quantityToAdd < 200) {
+                        setQuantityToAdd(quantityToAdd + 1);
                       }
                     }}
                   >
@@ -277,11 +265,8 @@ export default function CardDetails() {
                     type="button"
                     id="button-addon1"
                     onClick={() => {
-                      const inputEl = document.getElementById('quantity');
-                      const currentVal = parseInt(inputEl.value);
-                      if (currentVal - 1 !== 0) {
-                        inputEl.value = currentVal - 1;
-                        setQuantityToAdd(inputEl.valueAsNumber);
+                      if (quantityToAdd > 1) {
+                        setQuantityToAdd(quantityToAdd - 1);
                       }
                     }}
                   >
@@ -306,11 +291,8 @@ export default function CardDetails() {
                     type="button"
                     id="button-addon2"
                     onClick={() => {
-                      const inputEl = document.getElementById('quantity');
-                      const currentVal = parseInt(inputEl.value);
-                      if (currentVal < quantity) {
-                        inputEl.value = currentVal + 1;
-                        setQuantityToAdd(inputEl.valueAsNumber);
+                      if (quantityToAdd < quantity) {
+                        setQuantityToAdd(quantityToAdd + 1);
                       }
                     }}
                   >
