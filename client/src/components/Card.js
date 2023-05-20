@@ -9,6 +9,7 @@ export default function Card({ card }) {
   const [quantityToAdd, setQuantityToAdd] = useState(1);
   const [cost, setCost] = useState(0);
   const [cardFinish, setCardFinish] = useState(finish);
+  const [isVisible, setIsVisible] = useState(false);
   const [successMessage, setSuccessMessage] = useState();
   const [error, setError] = useState();
   const formRef = useRef(null);
@@ -20,6 +21,7 @@ export default function Card({ card }) {
       setQuantityToAdd(1);
       setCost(0);
       setCardFinish(finish);
+      setIsVisible(false);
       setSuccessMessage();
       setError();
       formRef.current.reset();
@@ -49,11 +51,16 @@ export default function Card({ card }) {
     setCardFinish(event.target.value);
   }
 
+  function handleVisibleChange(event) {
+    const inputVisible = event.target.value === "true";
+    setIsVisible(!inputVisible);
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     try {
       setSuccessMessage('...');
-      await addToInventory(card, quantityToAdd, cost, cardFinish);
+      await addToInventory(card, quantityToAdd, cost, cardFinish, isVisible);
       setError();
       setSuccessMessage('Successfully added to inventory.');
     } catch (err) {
@@ -99,7 +106,7 @@ export default function Card({ card }) {
         </div>
       </div>
       <div className="modal fade" id={`exampleModal-${cardId}`} tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div className="modal-dialog modal-dialog-centered">
+        {user?.isAdmin && finishes && (<div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="modal-title fs-5" id="exampleModalLabel">{name} #{collectorNumber} {finish !== 'nonfoil' && `(${finish})`}</h1>
@@ -189,7 +196,7 @@ export default function Card({ card }) {
                 {finishes && (
                   <>
                     <label htmlFor="card-finish" className="mr-3">Finish:</label>
-                    <div className={`input-group ${!error && !successMessage && "pb-4"}`}>
+                    <div className="input-group pb-4">
                       <select id="card-finish" className="form-select text-center" onChange={handleCardFinishChange}>
                         {finishes.split(', ').map((option) => (
                           <option key={option} value={option}>
@@ -200,6 +207,19 @@ export default function Card({ card }) {
                     </div>
                   </>
                 )}
+                <div className={`form-check form-switch ${!error && !successMessage && " pb-4"}`}>
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="available"
+                    checked={isVisible}
+                    value={isVisible}
+                    onChange={handleVisibleChange}
+                  />
+                  <label className="form-check-label" htmlFor="available">
+                    Visible
+                  </label>
+                </div>
                 {error && !successMessage && <div style={{ color: 'red' }}>Error: {error.message}</div>}
                 {successMessage && !error && <div style={{ color: 'green' }}>{successMessage}</div>}
                 <div className="d-flex justify-content-between align-items-center">
@@ -209,7 +229,7 @@ export default function Card({ card }) {
               </form>
             </div>
           </div>
-        </div>
+        </div>)}
       </div>
     </>
   );
