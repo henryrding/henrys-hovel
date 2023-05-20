@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { ShopContext } from '../components/ShopContext';
 import ToggleLamberto from '../components/ToggleLamberto';
 import NotFound from './NotFound';
-import { fetchCard, updateInventory, toDollars, createLineBreaks, handleToast } from '../lib';
+import { fetchCard, updateInventory, toDollars, italicizeReminderText, handleToast } from '../lib';
 import { AiOutlinePlusSquare, AiOutlineMinusSquare } from 'react-icons/ai';
 import { BiCheckCircle, BiErrorCircle } from 'react-icons/bi';
 import './CardDetails.css';
@@ -134,8 +134,15 @@ export default function CardDetails() {
               <p className="card-text"><strong>Type:</strong> {typeLine}</p>
               <p className="card-text"><strong>Set Name:</strong> {setName} ({setCode.toUpperCase()})</p>
               <p className="card-text"><strong>Rarity:</strong> {rarity}</p>
-              <p className="card-text"><strong>Oracle Text:</strong> {createLineBreaks(oracleText)}</p>
-              <p className="card-text"><strong>Flavor Text:</strong> <em>{flavorText.replaceAll('\\"', '"')}</em></p>
+              <p className="card-text" style={{ whiteSpace: "pre-line" }}><strong>Oracle Text:</strong> {italicizeReminderText(oracleText)}</p>
+              <p className="card-text" style={{ whiteSpace: "pre-line" }}>
+                <strong>Flavor Text:</strong>{" "}
+                <em>
+                  {flavorText
+                    .split('*')
+                    .map((text, index) => (index % 2 === 0 ? text : <span key={index} style={{ fontStyle: "normal" }}>{text}</span>))}
+                </em>
+              </p>
               <p className="card-text"><strong>Power/Toughness:</strong> {power}/{toughness}</p>
               <p className="card-text"><strong>Artist:</strong> {artist}</p>
               <p className="card-text"><strong>Collector Number:</strong> {collectorNumber}</p>
@@ -234,19 +241,19 @@ export default function CardDetails() {
                   </button>
                 </div>
               </div>
-                <div className="form-check form-switch pb-4">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id="available"
-                    checked={isVisible}
-                    value={isVisible}
-                    onChange={handleVisibleChange}
-                  />
-                  <label className="form-check-label" htmlFor="available">
-                    Visible
-                  </label>
-                </div>
+              <div className="form-check form-switch pb-4">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="available"
+                  checked={isVisible}
+                  value={isVisible}
+                  onChange={handleVisibleChange}
+                />
+                <label className="form-check-label" htmlFor="available">
+                  Visible
+                </label>
+              </div>
               <div className="d-flex justify-content-between align-items-center">
                 <button type="submit" className="btn btn-primary" id="liveToastBtn">
                   Update Card Qualities
