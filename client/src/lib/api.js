@@ -174,7 +174,7 @@ export async function fetchApiResponse(query) {
   return data.data.slice(0, 168);
 }
 
-export async function addToInventory(card, quantityToAdd, cost, cardFinish) {
+export async function addToInventory(card, quantityToAdd, cost, cardFinish, visible) {
   const token = localStorage.getItem('tokenKey');
   if (!token) {
     throw new Error('Token not found');
@@ -197,7 +197,8 @@ export async function addToInventory(card, quantityToAdd, cost, cardFinish) {
     power,
     toughness,
     flavorText,
-    artist
+    artist,
+    visible
   };
   const req = {
     method: 'POST',

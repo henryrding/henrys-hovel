@@ -454,14 +454,25 @@ app.delete('/api/cartInventory', async (req, res, next) => {
 
 app.get('/api/orderItems', async (req, res, next) => {
   try {
-    const { userId } = req.user;
-    const sql = `
-      select *
+    const { userId, isAdmin } = req.user;
+    let sql = '';
+    let params = [];
+
+    if (isAdmin) {
+      sql = `
+        select *
+        from "orderItems"
+        join "orders" using ("orderId");
+      `;
+    } else {
+      sql = `
+        select *
         from "orderItems"
         join "orders" using ("orderId")
-       where "userId" = $1;
-    `;
-    const params = [userId];
+        where "userId" = $1;
+      `;
+      params = [userId];
+    }
     const result = await db.query(sql, params);
     const orderItems = result.rows;
     res.json(orderItems);
@@ -550,7 +561,7 @@ app.post('/api/inventory', async (req, res, next) => {
       toughness,
       flavorText,
       artist,
-      visible = false
+      visible
     } = req.body;
     if (
       !name ||
@@ -566,11 +577,12 @@ app.post('/api/inventory', async (req, res, next) => {
       manaCost === undefined ||
       !typeLine ||
       oracleText === undefined ||
-      !artist
+      !artist ||
+      visible === undefined
     ) {
       throw new ClientError(
         400,
-        'name, collectorNumber, setName, setCode, rarity, finish, price, quantity, cardId, image, manaCost, typeLine, oracleText, and artist are required fields'
+        'name, collectorNumber, setName, setCode, rarity, finish, price, quantity, cardId, image, manaCost, typeLine, oracleText, artist, and visible are required fields'
       );
     }
     if (
