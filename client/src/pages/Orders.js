@@ -16,8 +16,14 @@ export default function Orders() {
                  orderNumber: curr.orderNumber,
                  totalPrice: curr.totalPrice,
                  shippingName: curr.shippingName,
-                 shippingAddress: curr.shippingAddress,
+                 shippingAddress1: curr.shippingAddress1,
+                 shippingAddress2: curr.shippingAddress2,
+                 shippingCity: curr.shippingCity,
+                 shippingState: curr.shippingState,
+                 shippingCountry: curr.shippingCountry,
+                 shippingPostalCode: curr.shippingPostalCode,
                  shippingCost: curr.shippingCost,
+                 shipped: curr.shipped,
                  createdAt: curr.createdAt,
                  items: [curr] });
     } else {
@@ -31,6 +37,16 @@ export default function Orders() {
     if (index === -1) {
       acc.push({ orderId: curr.orderId,
                  orderNumber: curr.orderNumber,
+                 totalPrice: curr.totalPrice,
+                 shippingName: curr.shippingName,
+                 shippingAddress1: curr.shippingAddress1,
+                 shippingAddress2: curr.shippingAddress2,
+                 shippingCity: curr.shippingCity,
+                 shippingState: curr.shippingState,
+                 shippingCountry: curr.shippingCountry,
+                 shippingPostalCode: curr.shippingPostalCode,
+                 shippingCost: curr.shippingCost,
+                 shipped: curr.shipped,
                  createdAt: curr.createdAt,
                  items: [curr] });
     } else {
@@ -82,11 +98,7 @@ export default function Orders() {
                   <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom" key={order.orderId}>
                     <div className="text-break col-4 col-md-7 col-lg-8">{order.orderNumber}</div>
                     <div>{order.createdAt.substring(0, 10)}</div>
-                    <Link
-                      to={{
-                        pathname: `/orderDetails/${order.orderNumber}`,
-                        state: { order }
-                      }}>
+                    <Link to={`/orderDetails/${order.orderNumber}`} state={order}>
                       <button className="btn btn-primary">Order Details</button>
                     </Link>
                   </div>
