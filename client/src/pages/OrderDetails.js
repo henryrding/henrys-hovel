@@ -1,9 +1,19 @@
+import { useState, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import { toDollars } from "../lib";
+import { ShopContext } from '../components/ShopContext';
 
 export default function OrderDetails(props) {
   const { state } = useLocation();
   const order = state;
+  const [shipped, setShipped] = useState(order.shipped)
+  const { user } = useContext(ShopContext);
+
+  const handleToggleShipped = () => {
+    console.log(order);
+    setShipped(!shipped);
+    console.log(shipped);
+  }
 
   return (
     <div className="container">
@@ -24,8 +34,10 @@ export default function OrderDetails(props) {
           <div className="row mb-3">
             <div className="col-4">Shipped To:</div>
             <div className="col-8">
-              <div>{order.shippingName}</div>
-              <div>{order.shippingAddress}</div>
+              <div>{order.shippingName.toUpperCase()}</div>
+              <div>{`${order.shippingAddress1}${order.shippingAddress2 && ' ' + order.shippingAddress2}`}</div>
+              <div>{`${order.shippingCity}, ${order.shippingState} ${order.shippingPostalCode}`}</div>
+              <div>{`${order.shippingCountry}`}</div>
             </div>
           </div>
           <div className="row mb-3">
@@ -35,6 +47,24 @@ export default function OrderDetails(props) {
           <div className="row mb-3">
             <div className="col-4">Total:</div>
             <div className="col-8">{toDollars(order.totalPrice)}</div>
+          </div>
+          <div className="row mb-3">
+            <div className="col-4">Status:</div>
+            <div className="col-8">
+              {user.isAdmin ? (
+                <label className="form-check-label">
+                  <input
+                    type="checkbox"
+                    className="form-check-input me-1"
+                    checked={shipped}
+                    onChange={handleToggleShipped}
+                  />
+                  Shipped
+                </label>
+              ) : (
+                shipped ? 'Shipped' : 'Processing'
+              )}
+            </div>
           </div>
         </div>
       </div>
