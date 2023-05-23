@@ -218,18 +218,23 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
   const payload = req.body;
   if (payload.type === 'checkout.session.completed') {
     const totalPrice = payload.data.object.amount_total;
-    const shippingAddress = `${payload.data.object.shipping_details.address.line1} ${payload.data.object.shipping_details.address.line2 !== null ? payload.data.object.shipping_details.address.line2 + ' ' : ''}${payload.data.object.shipping_details.address.city}, ${payload.data.object.shipping_details.address.state} ${payload.data.object.shipping_details.address.postal_code} ${payload.data.object.shipping_details.address.country}`;
+    const shippingAddress1 = payload.data.object.shipping_details.address.line1;
+    const shippingAddress2 = payload.data.object.shipping_details.address.line2 !== null ? payload.data.object.shipping_details.address.line2 : '';
+    const shippingCity = payload.data.object.shipping_details.address.city;
+    const shippingState = payload.data.object.shipping_details.address.state;
+    const shippingCountry = payload.data.object.shipping_details.address.country;
+    const shippingPostalCode = payload.data.object.shipping_details.address.postal_code;
     const shippingName = payload.data.object.shipping_details.name;
     const shippingCost = payload.data.object.shipping_cost.amount_subtotal;
     const userId = Number(payload.data.object.client_reference_id);
     const orderNumber = payload.data.object.id;
     try {
       const sql = `
-        insert into "orders" ("orderNumber", "userId", "totalPrice", "shippingName", "shippingAddress", "shippingCost", "shipped")
-          values ($1, $2, $3, $4, $5, $6, $7)
+        insert into "orders" ("orderNumber", "userId", "totalPrice", "shippingName", "shippingAddress1", "shippingAddress2", "shippingCity", "shippingState", "shippingCountry", "shippingPostalCode", "shippingCost", "shipped")
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
           returning *;
       `;
-      const params = [orderNumber, userId, totalPrice, shippingName, shippingAddress, shippingCost, false];
+      const params = [orderNumber, userId, totalPrice, shippingName, shippingAddress1, shippingAddress2, shippingCity, shippingState, shippingCountry, shippingPostalCode, shippingCost, false];
       const result = await db.query(sql, params);
       const [order] = result.rows;
       const orderId = order.orderId;
