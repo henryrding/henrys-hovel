@@ -661,7 +661,7 @@ app.patch('/api/orders/:orderId', async (req, res, next) => {
     }
     const orderId = Number(req.params.orderId);
     if (!Number.isInteger(orderId) || orderId <= 0) {
-      throw new ClientError(400, '"gradeId" must be a positive integer');
+      throw new ClientError(400, '"orderId" must be a positive integer');
     }
     const { shipped } = req.body;
     if (typeof shipped !== 'boolean') {
@@ -679,7 +679,7 @@ app.patch('/api/orders/:orderId', async (req, res, next) => {
     if (!updatedOrder) {
       throw new ClientError(404, `cannot find order with orderId ${orderId}`);
     }
-    res.json({ updatedOrder });
+    res.json(updatedOrder);
   } catch (err) {
     next(err);
   }
