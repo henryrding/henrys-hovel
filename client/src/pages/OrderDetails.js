@@ -6,13 +6,13 @@ import { ShopContext } from '../components/ShopContext';
 export default function OrderDetails(props) {
   const { state } = useLocation();
   const order = state;
-  const [shipped, setShipped] = useState(order.shipped)
-  const { user } = useContext(ShopContext);
+  const [shipped, setShipped] = useState(order.shipped);
+  const { user, handleToggleShipped } = useContext(ShopContext);
 
-  const handleToggleShipped = () => {
-    console.log(order);
-    setShipped(!shipped);
-    console.log(shipped);
+  const handleChange = () => {
+    const newShipped = !shipped;
+    handleToggleShipped(order.orderId, newShipped);
+    setShipped(newShipped);
   }
 
   return (
@@ -32,7 +32,7 @@ export default function OrderDetails(props) {
             <div className="col-8">{order.createdAt.substring(0, 10)}</div>
           </div>
           <div className="row mb-3">
-            <div className="col-4">Shipped To:</div>
+            <div className="col-4">Ship To:</div>
             <div className="col-8">
               <div>{order.shippingName.toUpperCase()}</div>
               <div>{`${order.shippingAddress1}${order.shippingAddress2 && ' ' + order.shippingAddress2}`}</div>
@@ -57,7 +57,7 @@ export default function OrderDetails(props) {
                     type="checkbox"
                     className="form-check-input me-1"
                     checked={shipped}
-                    onChange={handleToggleShipped}
+                    onChange={handleChange}
                   />
                   Shipped
                 </label>
