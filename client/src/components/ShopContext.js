@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
-import { fetchCartInventory, clearCartInventory, addCartInventory, deleteCartInventory, updateCartInventory, fetchOrderItems } from '../lib';
+import { fetchCartInventory, clearCartInventory, addCartInventory, deleteCartInventory, updateCartInventory, fetchOrderItems, updateOrderStatus } from '../lib';
 
 export const ShopContext = createContext();
 
@@ -153,6 +153,19 @@ export const ShopContextProvider = (props) => {
     }
   }, [user]);
 
+  const handleToggleShipped = useCallback(async (orderId, shipped) => {
+    try {
+      const updatedOrder = await updateOrderStatus(orderId, shipped);
+      setOrderItems((prev) =>
+        prev.map((orderItem) =>
+          orderItem.orderId === orderId ? { ...orderItem, shipped: updatedOrder.shipped } : orderItem
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
   const contextValue = useMemo(() => ({
     user,
     handleSignIn,
@@ -162,8 +175,9 @@ export const ShopContextProvider = (props) => {
     addToCart,
     removeFromCart,
     updateCartItemQuantity,
-    clearCart
-  }), [user, handleSignIn, handleSignOut, cartInventory, orderItems, addToCart, removeFromCart, updateCartItemQuantity, clearCart]);
+    clearCart,
+    handleToggleShipped
+  }), [user, handleSignIn, handleSignOut, cartInventory, orderItems, addToCart, removeFromCart, updateCartItemQuantity, clearCart, handleToggleShipped]);
 
   if (isAuthorizing) return null;
 

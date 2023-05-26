@@ -505,7 +505,7 @@ app.patch('/api/inventory/:cardId', async (req, res, next) => {
       throw new ClientError(400, 'quantity and price must be non-negative integers');
     }
     if (typeof visible !== 'boolean') {
-      throw new ClientError(400, 'visible must be true of false');
+      throw new ClientError(400, 'visible must be true or false');
     }
     const sql = `
       update "inventory"
@@ -648,6 +648,38 @@ app.post('/api/inventory', async (req, res, next) => {
     const result = await db.query(sql, params);
     const addedCard = result.rows[0];
     res.status(201).json(addedCard);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.patch('/api/orders/:orderId', async (req, res, next) => {
+  try {
+    const { isAdmin } = req.user;
+    if (!isAdmin) {
+      throw new ClientError(401, 'unauthorized: admin account required');
+    }
+    const orderId = Number(req.params.orderId);
+    if (!Number.isInteger(orderId) || orderId <= 0) {
+      throw new ClientError(400, '"orderId" must be a positive integer');
+    }
+    const { shipped } = req.body;
+    if (typeof shipped !== 'boolean') {
+      throw new ClientError(400, 'shipped must be true or false');
+    }
+    const sql = `
+      update "orders"
+         set "shipped" = $1
+       where "orderId" = $2
+      returning *;
+    `;
+    const params = [shipped, orderId];
+    const result = await db.query(sql, params);
+    const updatedOrder = result.rows[0];
+    if (!updatedOrder) {
+      throw new ClientError(404, `cannot find order with orderId ${orderId}`);
+    }
+    res.json(updatedOrder);
   } catch (err) {
     next(err);
   }

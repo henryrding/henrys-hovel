@@ -215,3 +215,24 @@ export async function addToInventory(card, quantityToAdd, cost, cardFinish, visi
   }
   return await res.json();
 }
+
+export async function updateOrderStatus(orderId, shipped) {
+  const token = localStorage.getItem('tokenKey');
+  if (!token) {
+    throw new Error('Token not found');
+  }
+  const req = {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ shipped }),
+  };
+  const res = await fetch(`/api/orders/${orderId}`, req);
+  if (!res.ok) {
+    const message = await res.text(res.body);
+    throw new Error(`${message.substring(10, message.length - 2)}`);
+  }
+  return await res.json();
+}

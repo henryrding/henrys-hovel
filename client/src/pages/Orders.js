@@ -12,7 +12,7 @@ export default function Orders() {
   const pendingOrders = pendingOrderItems.reduce((acc, curr) => {
     const index = acc.findIndex((item) => item.orderId === curr.orderId);
     if (index === -1) {
-      acc.push({ orderId: curr.orderId,
+      acc.unshift({ orderId: curr.orderId,
                  orderNumber: curr.orderNumber,
                  totalPrice: curr.totalPrice,
                  shippingName: curr.shippingName,
@@ -35,7 +35,7 @@ export default function Orders() {
   const completedOrders = completedOrderItems.reduce((acc, curr) => {
     const index = acc.findIndex((item) => item.orderId === curr.orderId);
     if (index === -1) {
-      acc.push({ orderId: curr.orderId,
+      acc.unshift({ orderId: curr.orderId,
                  orderNumber: curr.orderNumber,
                  totalPrice: curr.totalPrice,
                  shippingName: curr.shippingName,
@@ -57,7 +57,7 @@ export default function Orders() {
 
   return (
     <div className="container">
-      <h1 className="my-4">My Orders</h1>
+      <h1 className="my-4">Order History</h1>
       {!user ? (
         <>
           <div className="alert alert-info text-center mt-4" role="alert">
