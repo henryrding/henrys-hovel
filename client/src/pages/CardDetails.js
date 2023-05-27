@@ -90,14 +90,17 @@ export default function CardDetails() {
   );
   if (error) {
     return (
-      <>
+      <div className="container">
         <div className="alert alert-info text-center mt-4" role="alert">
           Error Loading Product {cardId}: {error.message}
         </div>
-        <div className="d-flex justify-content-center">
+        <div className="text-center mb-5">
           <ToggleLamberto />
+          <p className="text-muted" style={{ textDecorationSkipInk: "none" }}>
+            <Link to="/">Return to the catalog</Link>
+          </p>
         </div>
-      </>
+      </div>
     );
   }
   if (!card) return null;

@@ -11,7 +11,7 @@ export default function NavBar() {
 
   return (
     <>
-      <nav className="navbar navbar-expand bg-blue sticky-top border-bottom border-3 border-dark">
+      <nav className="navbar navbar-expand bg-red sticky-top border-bottom border-3 border-dark">
         <div className="container-fluid px-md-5">
           <Link className="text-light navbar-brand active text-center fs-4 py-0" aria-current="page" to="/">
             <span className="d-block fw-bold">Henry's</span>

@@ -40,14 +40,14 @@ export default function Catalog() {
   );
 
   if (error) return (
-    <>
+    <div className="container">
       <div className="alert alert-info text-center mt-4" role="alert">
         Error Loading Catalog: {error.message}
       </div>
       <div className="d-flex justify-content-center">
         <ToggleLamberto />
       </div>
-    </>
+    </div>
   );
 
   return (
