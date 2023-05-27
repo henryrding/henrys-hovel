@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { addToInventory ,toDollars } from '../lib';
 import { ShopContext } from "../components/ShopContext";
 import { AiOutlinePlusSquare, AiOutlineMinusSquare } from 'react-icons/ai';
+import "./Card.css";
 
 export default function Card({ card }) {
   const { name, collectorNumber, setName, setCode, rarity, finishes, finish, price, quantity, cardId, image } = card;
@@ -14,6 +15,16 @@ export default function Card({ card }) {
   const [error, setError] = useState();
   const formRef = useRef(null);
   const { user } = useContext(ShopContext);
+
+  const [isHovered, setIsHovered] = useState(false);
+
+  function handleMouseEnter() {
+    setIsHovered(true);
+  }
+
+  function handleMouseLeave() {
+    setIsHovered(false);
+  }
 
   useEffect(() => {
     const myModalEl = document.getElementById(`exampleModal-${cardId}`);
@@ -71,16 +82,16 @@ export default function Card({ card }) {
 
   return (
     <>
-      <div className="card mx-0">
+      <div className={`card mx-0 ${isHovered ? 'hovered' : ''}`}>
         {!finishes ? (
           <>
-            <Link className="d-none d-md-block position-relative" to={`/details/${cardId}/${finish}`}>
+            <Link className="d-none d-md-block position-relative" to={`/details/${cardId}/${finish}`} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
               <img src={`https://c1.scryfall.com/file/scryfall-cards/normal${image}`} alt={`${name} #${collectorNumber} ${finish !== 'nonfoil' && `(${finish})`}`} className="card-img-top mt-3" />
               {quantity === 0 && <div className="card-img-overlay d-flex justify-content-center align-items-center mt-3" style={{ backgroundColor: 'gray', opacity: 0.5, borderRadius: "3.5%" }}>
                 <h1 className="card-title text-center" style={{ color: 'black' }}>OUT OF STOCK</h1>
               </div>}
             </Link>
-            <Link className="d-block d-md-none position-relative" to={`/details/${cardId}/${finish}`}>
+            <Link className="d-block d-md-none position-relative" to={`/details/${cardId}/${finish}`} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
               <img src={`https://c1.scryfall.com/file/scryfall-cards/small${image}`} alt={`${name} #${collectorNumber} ${finish !== 'nonfoil' && `(${finish})`}`} className="card-img-top mt-3" />
               {quantity === 0 && <div className="card-img-overlay d-flex justify-content-center align-items-center mt-3" style={{ backgroundColor: 'gray', opacity: 0.5, borderRadius: "3.5%" }}>
                 <h1 className="card-title text-center" style={{ color: 'black' }}>OUT OF STOCK</h1>
@@ -89,10 +100,10 @@ export default function Card({ card }) {
           </>
         ) : (
           <>
-            <div className="d-none d-md-block position-relative" role="button">
+              <div className="d-none d-md-block position-relative" role="button" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <img src={`https://c1.scryfall.com/file/scryfall-cards/normal${image}`} alt={`${name} #${collectorNumber} ${finish !== 'nonfoil' && `(${finish})`}`} className="card-img-top mt-3" data-bs-toggle="modal" data-bs-target={`#exampleModal-${cardId}`} />
             </div>
-              <div className="d-block d-md-none position-relative" role="button">
+              <div className="d-block d-md-none position-relative" role="button" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <img src={`https://c1.scryfall.com/file/scryfall-cards/small${image}`} alt={`${name} #${collectorNumber} ${finish !== 'nonfoil' && `(${finish})`}`} className="card-img-top mt-3" data-bs-toggle="modal" data-bs-target={`#exampleModal-${cardId}`} />
             </div>
           </>
@@ -197,7 +208,7 @@ export default function Card({ card }) {
                   <>
                     <label htmlFor="card-finish" className="mr-3">Finish:</label>
                     <div className="input-group pb-4">
-                      <select id="card-finish" className="form-select text-center" onChange={handleCardFinishChange}>
+                      <select id="card-finish" className="form-select text-center" role="button" onChange={handleCardFinishChange}>
                         {finishes.split(', ').map((option) => (
                           <option key={option} value={option}>
                             {option}
@@ -214,6 +225,7 @@ export default function Card({ card }) {
                     id="available"
                     checked={isVisible}
                     value={isVisible}
+                    role="button"
                     onChange={handleVisibleChange}
                   />
                   <label className="form-check-label" htmlFor="available">
