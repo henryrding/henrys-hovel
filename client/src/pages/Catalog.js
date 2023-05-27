@@ -32,7 +32,7 @@ export default function Catalog() {
   }, []);
 
   if (isLoading) return (
-    <div className="d-flex justify-content-center align-items-center vh-100">
+    <div className="d-flex justify-content-center align-items-center" style={{ height: 'calc(100vh - 87px)' }}>
       <div className="spinner-border text-primary" role="status">
         <span className="sr-only visually-hidden">Loading...</span>
       </div>
