@@ -61,14 +61,14 @@ export default function Cart() {
     </div>
   );
   if (error) return (
-    <>
-    <div className="alert alert-info text-center mt-4" role="alert">
-      Error Loading Catalog: {error.message}
+    <div className="container">
+      <div className="alert alert-info text-center mt-4" role="alert">
+        Error Loading Catalog: {error.message}
+      </div>
+      <div className="d-flex justify-content-center">
+        <ToggleLamberto />
+      </div>
     </div>
-    <div className="d-flex justify-content-center">
-      <ToggleLamberto />
-    </div>
-  </>
   );
 
   return (
