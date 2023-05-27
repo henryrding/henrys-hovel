@@ -1,10 +1,17 @@
-import { useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link } from 'react-router-dom';
 import { ShopContext } from "../components/ShopContext";
 import ToggleLamberto from "../components/ToggleLamberto";
 
 export default function Orders() {
+  const [isLoading, setIsLoading] = useState(true);
   const { user, orderItems } = useContext(ShopContext);
+
+  useEffect(() => {
+    if (orderItems.length > 0) {
+      setIsLoading(false);
+    }
+  }, [orderItems]);
 
   const pendingOrderItems = orderItems.filter(order => !order.shipped);
   const completedOrderItems = orderItems.filter(order => order.shipped);
@@ -74,19 +81,26 @@ export default function Orders() {
               <h2>Pending Orders</h2>
             </div>
             <div className="card-body">
-              {pendingOrders.map((order) => (
-                <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom" key={order.orderId}>
-                  <div className="text-break col-4 col-md-7 col-lg-8">{order.orderNumber}</div>
-                  <div>{order.createdAt.substring(0, 10)}</div>
-                  <Link to={`/orderDetails/${order.orderNumber}`} state={ order }>
-                    <button className="btn btn-primary">Order Details</button>
-                  </Link>
+              {isLoading ? (
+                <div className="d-flex justify-content-center align-items-center">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="sr-only visually-hidden">Loading...</span>
+                  </div>
                 </div>
-              ))}
-              {pendingOrders.length === 0 && (
-                <div className="alert alert-info text-center mt-4" role="alert">
-                  No pending orders
-                </div>)}
+              ) : (pendingOrders.length === 0 ? (
+                  <div className="alert alert-info text-center mt-4" role="alert">
+                    No pending orders
+                  </div>
+                  ) : pendingOrders.map((order) => (
+                    <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom" key={order.orderId}>
+                      <div className="text-break col-4 col-md-7 col-lg-8">{order.orderNumber}</div>
+                      <div>{order.createdAt.substring(0, 10)}</div>
+                      <Link to={`/orderDetails/${order.orderNumber}`} state={order}>
+                        <button className="btn btn-primary">Order Details</button>
+                      </Link>
+                    </div>
+                  ))
+                )}
             </div>
           </div>
             <div className="card mb-4">
@@ -94,19 +108,31 @@ export default function Orders() {
                 <h2>Completed Orders</h2>
               </div>
               <div className="card-body">
-                {completedOrders.map((order) => (
-                  <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom" key={order.orderId}>
-                    <div className="text-break col-4 col-md-7 col-lg-8">{order.orderNumber}</div>
-                    <div>{order.createdAt.substring(0, 10)}</div>
-                    <Link to={`/orderDetails/${order.orderNumber}`} state={order}>
-                      <button className="btn btn-primary">Order Details</button>
-                    </Link>
+                {isLoading ? (
+                  <div className="d-flex justify-content-center align-items-center">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="sr-only visually-hidden">Loading...</span>
+                    </div>
                   </div>
-                ))}
-                {completedOrders.length === 0 && (
-                  <div className="alert alert-info text-center mt-4" role="alert">
-                    No orders found
-                  </div>)}
+                ) : (
+                  <>
+                    {completedOrders.length === 0 ? (
+                      <div className="alert alert-info text-center mt-4" role="alert">
+                        No orders found
+                      </div>
+                    ) : (
+                      completedOrders.map((order) => (
+                        <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom" key={order.orderId}>
+                          <div className="text-break col-4 col-md-7 col-lg-8">{order.orderNumber}</div>
+                          <div>{order.createdAt.substring(0, 10)}</div>
+                          <Link to={`/orderDetails/${order.orderNumber}`} state={order}>
+                            <button className="btn btn-primary">Order Details</button>
+                          </Link>
+                        </div>
+                      ))
+                    )}
+                  </>
+                )}
               </div>
             </div>
         </>)}

@@ -8,6 +8,6 @@ export default function ToggleLamberto() {
   }
 
   return (
-    <img onMouseOver={handleHover} onMouseOut={handleHover} src="/images/Lamberto.jpg" className={isHover ? "App-logo-fast" : "App-logo"} alt="Lamberto" style={{maxWidth: "70vw", height: "auto"}} />
+    <img onMouseEnter={handleHover} onMouseLeave={handleHover} src="/images/Lamberto.jpg" className={isHover ? "App-logo-fast" : "App-logo"} alt="Lamberto" style={{maxWidth: "70vw", height: "auto"}} />
   );
 }

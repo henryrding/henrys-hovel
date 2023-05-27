@@ -248,6 +248,7 @@ export default function CardDetails() {
                   id="available"
                   checked={isVisible}
                   value={isVisible}
+                  role="button"
                   onChange={handleVisibleChange}
                 />
                 <label className="form-check-label" htmlFor="available">

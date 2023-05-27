@@ -5,6 +5,8 @@ import { signUpOrIn } from '../lib';
 
 export default function AuthForm({ action, onSignIn }) {
   const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState();
 
   async function handleSubmit(event) {
@@ -21,6 +23,16 @@ export default function AuthForm({ action, onSignIn }) {
     } catch (err) {
       setError(err);
     }
+  }
+
+  const handleDemoUser = () => {
+    setUsername('johnsmith');
+    setPassword('password');
+  }
+
+  const handleDemoAdmin = () => {
+    setUsername('admin');
+    setPassword('PASSWORD');
   }
 
   const alternateActionTo = action === 'sign-up'
@@ -43,7 +55,9 @@ export default function AuthForm({ action, onSignIn }) {
             type="text"
             name="username"
             autoComplete="username"
-            className="form-control bg-light" />
+            className="form-control bg-light"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)} />
         </label>
       </div>
       <div className="mb-3">
@@ -54,7 +68,9 @@ export default function AuthForm({ action, onSignIn }) {
             type="password"
             name="password"
             autoComplete={action === 'sign-up' ? "current-password" : "new-password"}
-            className="form-control bg-light" />
+            className="form-control bg-light"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)} />
         </label>
       </div>
       {action === 'sign-up' &&
@@ -101,6 +117,16 @@ export default function AuthForm({ action, onSignIn }) {
           {submitButtonText}
         </button>
       </div>
+      {action === 'sign-in' && (
+        <div className="d-flex align-items-center">
+          <button type="button" className="btn btn-secondary" onClick={handleDemoUser}>
+            Demo User
+          </button>
+          <button type="button" className="btn btn-secondary mx-1" onClick={handleDemoAdmin}>
+            Demo Admin
+          </button>
+        </div>
+      )}
       {error && <div style={{ color: 'red' }}>Error: {error.message}</div>}
     </form>
   );
