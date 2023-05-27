@@ -6,6 +6,7 @@ export default function CartItem({card, cartQuantity}) {
   const { inventoryId, name, collectorNumber, setName, setCode, rarity, finish, price, image, quantity } = card;
   const { removeFromCart, updateCartItemQuantity } = useContext(ShopContext);
 
+  //creates array of options with values from 1 to quantity.
   const options = Array.from({ length: quantity }, (_, i) => i + 1);
 
   return (
