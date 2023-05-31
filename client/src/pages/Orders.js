@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { Link } from 'react-router-dom';
 import { ShopContext } from "../components/ShopContext";
-import ToggleLamberto from "../components/ToggleLamberto";
+import SpinningLogo from "../components/SpinningLogo";
 
 export default function Orders() {
   const [isLoading, setIsLoading] = useState(true);
@@ -71,7 +71,7 @@ export default function Orders() {
             You must be signed in to view orders!
           </div>
           <div className="d-flex justify-content-center">
-            <ToggleLamberto />
+            <SpinningLogo />
           </div>
         </>
       ) : (

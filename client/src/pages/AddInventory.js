@@ -2,7 +2,7 @@ import { useState, useCallback, useContext, Fragment} from "react";
 import { Link } from 'react-router-dom';
 import Card from "../components/Card";
 import Search from "../components/Search";
-import ToggleLamberto from "../components/ToggleLamberto";
+import SpinningLogo from "../components/SpinningLogo";
 import formatApiResults from "../lib/format-api-results";
 import { ShopContext } from '../components/ShopContext';
 
@@ -25,7 +25,7 @@ export default function AddInventory() {
             Unauthorized
           </div>
           <div className="text-center mb-5">
-            <ToggleLamberto />
+            <SpinningLogo />
             <p className="text-muted" style={{ textDecorationSkipInk: "none" }}>
               <Link to="/">Return to the catalog</Link>
             </p>

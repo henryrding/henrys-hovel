@@ -4,7 +4,7 @@ import { BiErrorCircle } from 'react-icons/bi';
 import { fetchCatalog, toDollars, handleToast } from '../lib';
 import CartItem from "../components/CartItem.js";
 import { ShopContext } from "../components/ShopContext";
-import ToggleLamberto from "../components/ToggleLamberto";
+import SpinningLogo from "../components/SpinningLogo";
 import './Cart.css';
 
 export default function Cart() {
@@ -66,7 +66,7 @@ export default function Cart() {
         Error Loading Catalog: {error.message}
       </div>
       <div className="d-flex justify-content-center">
-        <ToggleLamberto />
+        <SpinningLogo />
       </div>
     </div>
   );
@@ -79,7 +79,7 @@ export default function Cart() {
             Your cart is empty
           </div>
           <div className="d-flex justify-content-center">
-            <ToggleLamberto />
+            <SpinningLogo />
           </div>
         </>
       ) : (

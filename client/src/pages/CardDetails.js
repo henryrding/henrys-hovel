@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { ShopContext } from '../components/ShopContext';
-import ToggleLamberto from '../components/ToggleLamberto';
+import SpinningLogo from '../components/SpinningLogo';
 import NotFound from './NotFound';
 import { fetchCard, updateInventory, toDollars, italicizeReminderText, handleToast } from '../lib';
 import { AiOutlinePlusSquare, AiOutlineMinusSquare } from 'react-icons/ai';
@@ -95,7 +95,7 @@ export default function CardDetails() {
           Error Loading Product {cardId}: {error.message}
         </div>
         <div className="text-center mb-5">
-          <ToggleLamberto />
+          <SpinningLogo />
           <p className="text-muted" style={{ textDecorationSkipInk: "none" }}>
             <Link to="/">Return to the catalog</Link>
           </p>
