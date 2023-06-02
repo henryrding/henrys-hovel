@@ -8,12 +8,10 @@ export default function Orders() {
   const { user, orderItems } = useContext(ShopContext);
 
   useEffect(() => {
-    if (orderItems.length > 0) {
-      setIsLoading(false);
-    }
+    setIsLoading(orderItems.length === 0);
   }, [orderItems]);
 
-  const pendingOrderItems = orderItems.filter(order => !order.shipped);
+  const pendingOrderItems = orderItems.filter(order => order.shipped === false);
   const completedOrderItems = orderItems.filter(order => order.shipped);
 
   const pendingOrders = pendingOrderItems.reduce((acc, curr) => {
