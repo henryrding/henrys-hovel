@@ -23,6 +23,7 @@ Try the application live (soon) at [https://henryshovel.azurewebsites.net/](http
 - Webpack
 - Azure
 - Figma
+- Stripe
 
 ## Features
 
@@ -48,10 +49,67 @@ Try the application live (soon) at [https://henryshovel.azurewebsites.net/](http
 
 ## Preview
 
-![Henry's Hovel](md.assets/demo.gif)
+![Henry's Hovel (user)](md.assets/henrys-hovel-user-demo-1.gif)
+![Henry's Hovel (admin)](md.assets/henrys-hovel-user-demo-2.gif)
 
 ### System Requirements
 
 - Node.js 18 or higher
 - NPM 8 or higher
 - PostgreSQL 14 or higher
+- Stripe CLI
+
+### Getting Started
+
+1. Clone the repository.
+
+  ```shell
+  git clone https://github.com/henryrding/henrys-hovel
+  cd henrys-hovel
+  ```
+
+
+2. Install all dependencies with NPM.
+
+  ```shell
+  npm install
+  ```
+
+3. Import the example database to PostgreSQL.
+
+  ```shell
+  npm run db:import
+  ```
+
+4. Set up the Stripe CLI for webhooks with Command Prompt.
+
+  ```shell
+  stripe login
+  stripe status
+  stripe listen -- forward-to localhost:3000/webhook
+  ```
+
+
+5. Start the server.
+
+  ```shell
+  cd server
+  npm run dev
+  ```
+
+
+6. Start PostgreSQL, create a databse, then access the PostgreSQL database using pgweb.
+
+  ```shell
+  sudo service postgresql start
+  create db henrys-hovel
+  pgweb --db=henrys-hovel
+  ```
+
+
+7. Start the client. Once started, you can view the application by opening http://localhost:3000 in your browser.
+
+  ```shell
+  cd client
+  npm start
+  ```
