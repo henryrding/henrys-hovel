@@ -107,7 +107,14 @@ Try the application live (soon) at [https://henryshovel.azurewebsites.net/](http
   ```
 
 
-7. Start the client. Once started, you can view the application by opening http://localhost:3000 in your browser.
+7. Create a .env file in server/ from .env.example. In the `DATABASE_URL` value, replace changeMe` with the name of your database from the last step.
+
+  ```shell
+  cp server/.env.example server/.env
+  ```
+
+
+8. Start the client. Once started, you can view the application by opening http://localhost:3000 in your browser.
 
   ```shell
   cd client
