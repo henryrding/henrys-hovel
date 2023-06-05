@@ -8,7 +8,7 @@ I wanted to build this project to demonstrate my programming skills while combin
 
 ## Live Demo
 
-Try the application live (soon) at [https://henryshovel.azurewebsites.net/](https://henryshovel.azurewebsites.net/)
+Try the application live at [https://henrys-hovel.azurewebsites.net/](https://henrys-hovel.azurewebsites.net/)
 
 ### Technologies Used
 
