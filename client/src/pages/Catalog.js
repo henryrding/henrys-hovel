@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useContext, Fragment } from 'react';
 import { fetchCatalog } from '../lib';
 import Card from "../components/Card";
 import Search from "../components/Search";
-import ToggleLamberto from '../components/ToggleLamberto';
+import SpinningLogo from '../components/SpinningLogo';
 import { ShopContext } from '../components/ShopContext';
 
 export default function Catalog() {
@@ -45,7 +45,7 @@ export default function Catalog() {
         Error Loading Catalog: {error.message}
       </div>
       <div className="d-flex justify-content-center">
-        <ToggleLamberto />
+        <SpinningLogo />
       </div>
     </div>
   );

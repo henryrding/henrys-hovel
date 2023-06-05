@@ -1,19 +1,17 @@
 import { useState, useEffect, useContext } from "react";
 import { Link } from 'react-router-dom';
 import { ShopContext } from "../components/ShopContext";
-import ToggleLamberto from "../components/ToggleLamberto";
+import SpinningLogo from "../components/SpinningLogo";
 
 export default function Orders() {
   const [isLoading, setIsLoading] = useState(true);
   const { user, orderItems } = useContext(ShopContext);
 
   useEffect(() => {
-    if (orderItems.length > 0) {
-      setIsLoading(false);
-    }
+    setIsLoading(orderItems.length === 0);
   }, [orderItems]);
 
-  const pendingOrderItems = orderItems.filter(order => !order.shipped);
+  const pendingOrderItems = orderItems.filter(order => order.shipped === false);
   const completedOrderItems = orderItems.filter(order => order.shipped);
 
   const pendingOrders = pendingOrderItems.reduce((acc, curr) => {
@@ -71,7 +69,7 @@ export default function Orders() {
             You must be signed in to view orders!
           </div>
           <div className="d-flex justify-content-center">
-            <ToggleLamberto />
+            <SpinningLogo />
           </div>
         </>
       ) : (

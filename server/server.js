@@ -479,7 +479,7 @@ app.get('/api/orderItems', async (req, res, next) => {
       params = [userId];
     }
     const result = await db.query(sql, params);
-    const orderItems = result.rows;
+    const orderItems = result.rows.length === 0 ? ['none'] : result.rows;
     res.json(orderItems);
   } catch (err) {
     next(err);
