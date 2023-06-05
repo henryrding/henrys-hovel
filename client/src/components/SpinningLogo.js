@@ -2,7 +2,7 @@ import { useState } from "react";
 
 export default function SpinningLogo() {
   const [isHover, setIsHover] = useState(false);
-  const imageUrl = '/images/AuntiesHovel.png';
+  const imageUrl = '/images/aunties-hovel.png';
   const fileName = imageUrl.split('/').pop().split('.').shift();
 
   function handleHover() {
