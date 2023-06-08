@@ -2,14 +2,22 @@
   text-align: center;
 }
 
-.App-logo {
+.App-logo,
+.App-logo-fast {
   height: 40vmin;
-  pointer-events: none;
+  width: 40vmin;
+  line-height: 20vmin;
+  text-align: center;
+  border-radius: 50%;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
+  }
+
+  .App-logo-fast {
+    animation: App-logo-spin infinite 0.15s linear;
   }
 }
 
@@ -22,10 +30,6 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
-}
-
-.App-link {
-  color: #61dafb;
 }
 
 @keyframes App-logo-spin {
