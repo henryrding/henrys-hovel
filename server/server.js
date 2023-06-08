@@ -204,8 +204,8 @@ app.post('/create-checkout-session/:userId', async (req, res, next) => {
       }),
       client_reference_id: userId,
       mode: 'payment',
-      success_url: 'http://localhost:3000/orders',
-      cancel_url: 'http://localhost:3000/cart',
+      success_url: 'https://henrys-hovel.azurewebsites.net/orders',
+      cancel_url: 'https://henrys-hovel.azurewebsites.net/cart',
     });
 
     res.redirect(303, session.url);
