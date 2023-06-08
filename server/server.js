@@ -313,7 +313,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
   }
 });
 
-app.use(authorizationMiddleware);
+app.use('/api/*', authorizationMiddleware);
 
 app.get('/api/cartInventory', async (req, res, next) => {
   try {
@@ -684,6 +684,8 @@ app.patch('/api/orders/:orderId', async (req, res, next) => {
     next(err);
   }
 });
+
+app.get('*', (req, res) => res.sendFile(`${reactStaticDir}/index.html`));
 
 app.use(errorMiddleware);
 
