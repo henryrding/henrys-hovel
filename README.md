@@ -10,6 +10,8 @@ I wanted to build this project to demonstrate my programming skills while combin
 
 Try the application live at [https://henrys-hovel.azurewebsites.net/](https://henrys-hovel.azurewebsites.net/)
 
+To simulate a successful payment on the Stripe checkout page, please use one of the test cards from the list found here [https://stripe.com/docs/testing#cards/](https://stripe.com/docs/testing#cards/)
+
 ### Technologies Used
 
 - HTML5
