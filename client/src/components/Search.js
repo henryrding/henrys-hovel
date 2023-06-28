@@ -6,22 +6,26 @@ import { fetchApiResponse } from '../lib';
 export default function Search({ inventory, handleSearch }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredInventory, setFilteredInventory] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
 
   useEffect(() => {
     const timerId = setTimeout(() => {
       async function getResults() {
+        setIsLoading(true);
+        setError(null);
         try {
           const filteredResults = inventory ? inventory.filter((product) =>
             product.name.toLowerCase().includes(searchQuery.toLowerCase())
           ) : (
             await fetchApiResponse(searchQuery)
           );
-          setError();
           setFilteredInventory(filteredResults);
           handleSearch(filteredResults);
         } catch (err) {
           setError(err);
+        } finally {
+          setIsLoading(false);
         }
       }
       getResults();
@@ -57,6 +61,13 @@ export default function Search({ inventory, handleSearch }) {
       {error && (
         <div className="alert alert-info text-center mt-4" role="alert">
           {error.message}
+        </div>
+      )}
+      {isLoading && (
+        <div className="d-flex justify-content-center mt-4">
+          <div className="spinner-border text-primary" role="status">
+            <span className="sr-only visually-hidden">Loading...</span>
+          </div>
         </div>
       )}
     </>
