@@ -9,6 +9,9 @@ I wanted to build this project to demonstrate my programming skills while combin
 ## Live Demo
 
 Try the application live at [https://henrys-hovel.azurewebsites.net/](https://henrys-hovel.azurewebsites.net/)
+**Note: Please be aware that the website may take a few moments to load initially due to server startup and network latency.**
+
+Once the website is loaded, you can freely navigate and explore its features. If you encounter any issues or have feedback, feel free to reach out.
 
 To simulate a successful payment on the Stripe checkout page, please use one of the test cards from the list found here [https://stripe.com/docs/testing#cards/](https://stripe.com/docs/testing#cards/)
 
